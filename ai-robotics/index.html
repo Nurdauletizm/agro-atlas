@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI + Robotics в агро</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f1; --surface:#fcfdfb; --surface2:#eef2ec;
+  --ink:#0f1a14; --ink2:#46534b; --muted:#76827a; --line:#dde3da; --axis:#c3cbc0;
+  --accent:#1f6b4f; --accent-ink:#ffffff; --accent-soft:#e1eee6;
+  --kz:#9a6a00; --kz-soft:#f6ecd2;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --evA:#1b5e3f; --evA-i:#ffffff; --evB:#3d8c63; --evB-i:#ffffff; --evC:#a9cfa9; --evC-i:#0f1a14; --evD:#e2ecdc; --evD-i:#0f1a14;
+  --tAI:#4a3aa7; --tRob:#e87ba4;
+  --crit:#d03b3b; --warn:#fab219; --good:#0ca30c;
+  --f-disp:"Literata",Georgia,"Times New Roman",serif;
+  --f-ui:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0d1310; --surface:#141c17; --surface2:#1a241e;
+    --ink:#edf3ee; --ink2:#b7c3ba; --muted:#86928a; --line:#26312a; --axis:#3a463e;
+    --accent:#5fbf93; --accent-ink:#0d1310; --accent-soft:#1b2e24;
+    --kz:#e2b545; --kz-soft:#2e2715;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    --tAI:#9085e9; --tRob:#d55181;
+    --evA:#72d3a2; --evA-i:#0d1310; --evB:#3f9f72; --evB-i:#0d1310; --evC:#2a5b44; --evC-i:#edf3ee; --evD:#1f3129; --evD-i:#edf3ee;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0d1310; --surface:#141c17; --surface2:#1a241e;
+  --ink:#edf3ee; --ink2:#b7c3ba; --muted:#86928a; --line:#26312a; --axis:#3a463e;
+  --accent:#5fbf93; --accent-ink:#0d1310; --accent-soft:#1b2e24;
+  --kz:#e2b545; --kz-soft:#2e2715;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --tAI:#9085e9; --tRob:#d55181;
+  --evA:#72d3a2; --evA-i:#0d1310; --evB:#3f9f72; --evB-i:#0d1310; --evC:#2a5b44; --evC-i:#edf3ee; --evD:#1f3129; --evD-i:#edf3ee;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-ui);}
+a{color:var(--accent)}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:0 64px}
+@media (max-width:520px){.wrap{padding-inline:16px}}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topin{max-width:1180px;margin:0 auto;padding-inline:20px;display:flex;align-items:center;gap:20px;min-height:56px}
+@media (max-width:520px){.topin{padding-inline:16px}}
+.brand{font:600 17px/1 var(--f-disp);white-space:nowrap;display:flex;align-items:center;gap:10px}
+.brand i{width:18px;height:18px;border-radius:50%;background:conic-gradient(var(--evA) 0 25%,var(--evB) 0 50%,var(--evC) 0 75%,var(--evD) 0);display:inline-block}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{font:500 14px var(--f-ui);color:var(--ink2);background:none;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+nav.tabs button:hover{background:var(--surface2);color:var(--ink)}
+nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section.pane{padding-top:36px}
+h1,h2,h3{font-family:var(--f-disp);font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4.2vw,44px);line-height:1.1;letter-spacing:-.01em}
+h2{font-size:26px;line-height:1.2}
+h3{font-size:18px;line-height:1.3}
+.lede{color:var(--ink2);max-width:68ch;margin:12px 0 0;font-size:16px}
+.eyebrow{font:500 12px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stack{display:grid;gap:28px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+.card h3+p,.card h3+.sub{margin-top:4px}
+.sub{color:var(--muted);font-size:13px;margin:4px 0 0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.tile{background:var(--surface);padding:18px 20px}
+.tile b{display:block;font:600 30px/1.1 var(--f-disp);letter-spacing:-.01em}
+.tile span{display:block;color:var(--ink2);font-size:13.5px;margin-top:6px}
+.tile small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+ol.points,ul.points{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:12px}
+.points li{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:start}
+.points li .n{font:500 12px var(--f-mono);color:var(--accent);padding-top:3px}
+.points li b{font-weight:600}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-family:var(--f-ui);fill:var(--ink2);font-size:12px}
+.chart .tick{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.chart .val{fill:var(--ink);font-weight:600;font-size:12px}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .base{stroke:var(--axis);stroke-width:1}
+.chart [data-tip]{cursor:default}
+.chart .hit{fill:transparent}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 0;font-size:13px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.note{font-size:13px;color:var(--muted);margin:10px 0 0;max-width:80ch}
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;line-height:1.4;padding:8px 10px;border-radius:8px;max-width:280px;box-shadow:0 4px 18px rgba(0,0,0,.18)}
+#tip b{font-weight:600}
+.chip{display:inline-flex;align-items:center;gap:5px;font:500 12px/1 var(--f-ui);padding:4px 8px;border-radius:999px;background:var(--surface2);color:var(--ink2);white-space:nowrap}
+.chip.kz{background:var(--kz-soft);color:var(--kz)}
+.chip.ev{font-family:var(--f-mono);font-weight:500;border-radius:6px;padding:4px 7px}
+.ev-A{background:var(--evA);color:var(--evA-i)}.ev-B{background:var(--evB);color:var(--evB-i)}.ev-C{background:var(--evC);color:var(--evC-i)}.ev-D{background:var(--evD);color:var(--evD-i)}
+.chip.trk{background:transparent;border:1px solid var(--line);color:var(--ink2);padding:3px 8px}
+.ecard .tk{margin-top:6px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.seg{display:inline-flex;background:var(--surface2);border-radius:9px;padding:3px;gap:2px}
+.seg button{font:500 13px var(--f-ui);border:0;background:none;color:var(--ink2);padding:6px 12px;border-radius:7px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.row.between{justify-content:space-between}
+/* evidence board */
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.board{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.board{grid-template-columns:1fr}}
+.col{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.colhead{display:flex;align-items:center;gap:10px}
+.colhead .chip.ev{font-size:14px;padding:6px 10px}
+.colhead p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.35}
+.ecard{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--bg);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.ecard:hover{border-color:var(--accent)}
+.ecard .t{font-weight:600;font-size:14px;line-height:1.3;display:flex;justify-content:space-between;gap:8px;align-items:start}
+.ecard .d{font-size:13px;color:var(--ink2);margin-top:6px;display:none}
+.ecard[aria-expanded="true"] .d{display:block}
+.ecard .d p{margin:4px 0 0}
+.ecard .src{font-size:11px;color:var(--muted);margin-top:4px}
+/* tables */
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{font:500 12px var(--f-ui);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+.meter{display:inline-flex;gap:2px;vertical-align:middle}
+.meter i{width:12px;height:6px;border-radius:2px;background:var(--line)}
+.meter i.on{background:var(--accent)}
+.risk{color:var(--crit);font-weight:500}
+/* papers */
+.filters{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:10px}
+@media (max-width:860px){.filters{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.filters{grid-template-columns:1fr}}
+.filters label{display:grid;gap:4px;font-size:12px;color:var(--muted)}
+input[type=search],select{font:14px var(--f-ui);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+.checks{display:flex;flex-wrap:wrap;gap:16px;font-size:13.5px;color:var(--ink2)}
+.checks label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+.ptitle{font-weight:500;color:var(--ink)}
+.ptitle a{color:inherit;text-decoration-color:var(--axis);text-underline-offset:3px}
+.ptitle a:hover{color:var(--accent)}
+.pmeta{color:var(--muted);font-size:12.5px;margin-top:2px}
+.pgist{color:var(--ink2);font-size:13px;margin-top:4px;max-width:70ch}
+.verify{color:var(--kz);font-size:12px}
+.count{font:500 13px var(--f-mono);color:var(--ink2)}
+/* timeline */
+.tl{display:grid;gap:0}
+.yr{display:grid;grid-template-columns:110px 1fr;gap:20px;padding:18px 0;border-top:1px solid var(--line)}
+.yr:first-child{border-top:0}
+@media (max-width:640px){.yr{grid-template-columns:1fr;gap:8px}}
+.yr .y{font:600 30px/1 var(--f-disp)}
+.yr .vc{font:500 12px var(--f-mono);color:var(--muted);margin-top:6px}
+.yr .ext{font-size:12px;color:var(--muted);margin-top:4px}
+.lanes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 24px}
+@media (max-width:860px){.lanes{grid-template-columns:1fr}}
+.lane{font-size:14px}
+.lane .eyebrow{display:block;margin-bottom:2px}
+.lane.sci{padding-left:12px;border-left:2px solid var(--accent)}
+/* agenda */
+.agenda{display:grid;gap:10px}
+.aitem{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.aitem.top{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.aitem .rk{font:600 22px/1 var(--f-disp);color:var(--accent)}
+.aitem .rk.dim{color:var(--axis)}
+.aitem h3{font-size:16px}
+.aitem p{margin:4px 0 0;font-size:13.5px;color:var(--ink2)}
+.aitem .tags{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+@media (max-width:640px){.aitem{grid-template-columns:32px 1fr}.aitem .tags{grid-column:2;flex-direction:row;flex-wrap:wrap;align-items:center}}
+.lvl{font-size:12px;color:var(--muted);white-space:nowrap}
+.lvl b{color:var(--ink);font-weight:600}
+/* issues */
+.issue{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.issue:first-child{border-top:0}
+@media (max-width:640px){.issue{grid-template-columns:1fr;gap:6px}}
+.sev{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500}
+.sev i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.issue h3{font-size:15.5px;font-family:var(--f-ui)}
+.issue p{margin:4px 0 0;font-size:13.5px;color:var(--ink2);max-width:80ch}
+.issue .where{font-size:12px;color:var(--muted);margin-top:4px}
+footer{margin-top:48px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:no-preference){section.pane{animation:fade .25s ease-out}}
+@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="topin">
+  <div class="brand"><i aria-hidden="true"></i>AI + Robotics <span style="color:var(--muted);font-weight:500">в агро</span></div>
+  <nav class="tabs" role="tablist" aria-label="Разделы">
+    <button role="tab" data-tab="overview">Обзор</button>
+    <button role="tab" data-tab="market">Рынок</button>
+    <button role="tab" data-tab="evidence">Доказательность</button>
+    <button role="tab" data-tab="timeline">Хронология</button>
+    <button role="tab" data-tab="papers">Статьи</button>
+    <button role="tab" data-tab="field">Лаборатория и поле</button>
+    <button role="tab" data-tab="kz">Казахстан</button>
+    <button role="tab" data-tab="checks">Проверка</button>
+  </nav>
+</div></header>
+
+<main class="wrap">
+
+<!-- OVERVIEW -->
+<section class="pane" id="p-overview" role="tabpanel">
+  <div class="stack">
+    <div>
+      <p class="eyebrow">AI + Robotics · единая платформа · 2020–2026 · сентябрь 2026</p>
+      <h1>Что реально работает в агротехе и где здесь место Казахстану</h1>
+      <p class="lede">AI и робототехника собраны в общие разделы. У каждого направления, статьи и пункта повестки есть метка трека: <span class="chip trk"><i class="dot" style="background:var(--tAI)"></i>AI</span> или <span class="chip trk"><i class="dot" style="background:var(--tRob)"></i>Robotics</span>. В платформе 168 ключевых статей, оценки рынка и шкала доказательности от A до D.</p>
+    </div>
+    <div class="tiles">
+      <div class="tile"><b>$16,2 млрд</b><span>венчур в agrifoodtech, 2025</span><small>−69% от пика 2021 года ($51,7 млрд), AgFunder</small></div>
+      <div class="tile"><b>17%</b><span>фермеров используют генеративный AI</span><small>платят 4%, доверяют 6%, McKinsey 2026</small></div>
+      <div class="tile"><b>600 тыс.</b><span>агродронов DJI в мире к концу 2025</span><small>годом ранее 400 тыс., данные DJI</small></div>
+      <div class="tile"><b>0,646 → 0,413</b><span>R² прогноза урожая пшеницы в Казахстане</span><small>пространственная и временная проверка, Alpysbay 2026</small></div>
+    </div>
+    <div class="card">
+      <p class="eyebrow">Сквозные выводы обоих отчётов</p>
+      <ol class="points" style="margin-top:14px">
+        <li><span class="n">01</span><div><b>Главная проблема в полевой проверке, а не в архитектуре моделей.</b> В AI это случайная кросс-валидация, которая завышает точность. В робототехнике это испытания на одном участке за один сезон.</div></li>
+        <li><span class="n">02</span><div><b>Foundation models и VLA пока на уровне D.</b> Независимые проверки показывают, что они часто лишь догоняют хорошо настроенные простые модели. VLA-роботы в 4–5 раз медленнее специализированных.</div></li>
+        <li><span class="n">03</span><div><b>Окупается то, что встраивается в существующую технику.</b> Точечное опрыскивание, ретрофит-автономия и дроны-как-услуга растут. Собственные платформы проваливаются: Monarch Tractor, вертикальные фермы.</div></li>
+        <li><span class="n">04</span><div><b>В Казахстане практика опережает науку.</b> Парк дронов фитосанитарной службы вырос с 7 до 103, но опубликованных полевых данных почти нет. Это открытая ниша для местной команды.</div></li>
+      </ol>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="row between"><h3>AI и машинное обучение</h3><span class="chip trk"><i class="dot" style="background:var(--tAI)"></i>AI</span></div>
+        <p class="sub">Пять главных выводов отчёта</p>
+        <ul class="points">
+          <li><span class="n">1</span><div><b>Побеждает понятная экономика.</b> Лучше окупаются решения, встроенные в технику и каналы: точечное опрыскивание, автопилоты, спутниковый мониторинг, LLM-ассистенты.</div></li>
+          <li><span class="n">2</span><div><b>Венчур прошёл полный цикл.</b> От $51,7 млрд в 2021 году до стабилизации около $16 млрд в 2024–2025 годах.</div></li>
+          <li><span class="n">3</span><div><b>В науке главная тема — честность валидации.</b> Временная проверка даёт скромные, но реалистичные цифры.</div></li>
+          <li><span class="n">4</span><div><b>FM и LLM — главный хайп при слабой доказательной базе.</b> Агро-LLM проверены на бенчмарках, а не в поле.</div></li>
+          <li><span class="n">5</span><div><b>Центральная Азия — открытая ниша.</b> Регион почти отсутствует в глобальных бенчмарках.</div></li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="row between"><h3>Агроробототехника</h3><span class="chip trk"><i class="dot" style="background:var(--tRob)"></i>Robotics</span></div>
+        <p class="sub">Пять главных выводов отчёта</p>
+        <ul class="points">
+          <li><span class="n">1</span><div><b>Масштабировались три класса систем:</b> агродроны, GNSS-автовождение и доильные роботы. Автономные тракторы и сборщики пока в пилотах.</div></li>
+          <li><span class="n">2</span><div><b>Уровня A достигли только доильные роботы и автовождение.</b> Лучшие сборщики дают около 80% успешности при 6–8 с на плод.</div></li>
+          <li><span class="n">3</span><div><b>Сильнее всего доказана прополка.</b> Лазер снижает биомассу сорняков на 97% и больше, но машина стоит $1,2–1,7 млн.</div></li>
+          <li><span class="n">4</span><div><b>Рынок консолидируется через крупных производителей.</b> Caterpillar купила активы Monarch, CNH купила Advanced Farm.</div></li>
+          <li><span class="n">5</span><div><b>Казахстан — сильная господдержка при почти пустой научной базе.</b> Ниши: сервис, интеграция и измерения сноса от дронов в степи.</div></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row between"><h3>Что изменилось за шесть лет</h3><span class="sub">клик по году открывает хронологию</span></div>
+      <div id="ov-mini" style="margin-top:12px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET -->
+<section class="pane" id="p-market" role="tabpanel" hidden>
+  <div class="stack">
+    <div><p class="eyebrow">Рынок и инвестиции</p><h2>Деньги ушли, осталась окупаемость</h2>
+    <p class="lede">Оценки размера рынка расходятся в разы, поэтому для решений надёжнее натуральные показатели: акры, единицы техники, выручка компаний.</p></div>
+    <div class="grid2">
+      <div class="card"><h3>Венчур в agrifoodtech</h3><p class="sub">млрд долларов в год, AgFunder</p><div id="c-vc" style="margin-top:12px"></div>
+        <p class="note">В 2025 году upstream-сегмент получил $9 млрд (+7%), доля долгового финансирования выросла до 18,2%. Данные за 2024 год пересмотрены с $16 до $16,7 млрд.</p></div>
+      <div class="card"><h3>Опрыскивание дронами в США</h3><p class="sub">млн акров в год, American Spray Drone Coalition</p><div id="c-drone" style="margin-top:12px"></div>
+        <p class="note">Площадь растёт, а экономика операторов ухудшается: цена обработки упала с $21 до $13 за акр (−38%), продажи новых дронов — с 8 950 до 3 711 единиц из-за блокировки импорта DJI.</p></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Рынок «AI в сельском хозяйстве»</h3><p class="sub">оценки агентств, млрд долларов, база 2023–2025</p><div id="c-mkt-ai" style="margin-top:12px"></div>
+        <p class="note">Разброс около 5 раз. Отчёт считает разумным консенсус $2–3 млрд (выделенная полоса) и рост на 20–25% в год.</p></div>
+      <div class="card"><h3>Рынок агророботов</h3><p class="sub">оценки агентств за 2025 год, млрд долларов</p><div id="c-mkt-rob" style="margin-top:12px"></div>
+        <p class="note">Разброс больше чем вдвое. Он зависит от того, включают ли агентства дроны, автовождение и доильных роботов.</p></div>
+    </div>
+    <div class="card">
+      <h3>Генеративный AI у фермеров</h3><p class="sub">доля фермеров, McKinsey Global Farmer Insights 2026, 5 500 фермеров в 10 странах</p>
+      <div id="c-mck" style="margin-top:12px;max-width:720px"></div>
+      <p class="note">Для 56% фермеров главным источником влияния по-прежнему остаются агрономы.</p>
+    </div>
+    <div>
+      <div class="row between"><h3>Зрелость направлений</h3>
+        <div class="seg" role="group" aria-label="Трек" id="seg-mat"><button aria-pressed="true" data-v="all">Все</button><button aria-pressed="false" data-v="ai">AI</button><button aria-pressed="false" data-v="rob">Robotics</button></div></div>
+      <div class="tscroll" style="margin-top:12px"><table id="t-mat"></table></div>
+      <p class="note">Все 26 направлений обоих треков в одной таблице, от зрелых к экспериментальным. Шкала зрелости: четыре деления — зрелый массовый продукт, одно — R&amp;D или эксперимент. Красным отмечены направления в кризисе.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EVIDENCE -->
+<section class="pane" id="p-evidence" role="tabpanel" hidden>
+  <div class="stack">
+    <div class="row between" style="align-items:end">
+      <div><p class="eyebrow">Шкала доказательности</p><h2>Насколько можно верить цифрам</h2>
+      <p class="lede">Все 30 направлений AI и робототехники на одной доске. Строку «Робототехника» из AI-отчёта целиком покрывает трек Robotics. Каждое стоит в колонке своего уровня. Смешанные оценки вроде «A / D» размещены по первой букве, полная оценка указана на карточке. Нажмите на карточку, чтобы увидеть детали.</p></div>
+      <div class="seg" role="group" aria-label="Трек" id="seg-ev"><button aria-pressed="true" data-v="all">Все</button><button aria-pressed="false" data-v="ai">AI</button><button aria-pressed="false" data-v="rob">Robotics</button></div>
+    </div>
+    <div class="board" id="board"></div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="pane" id="p-timeline" role="tabpanel" hidden>
+  <div class="stack">
+    <div><p class="eyebrow">2020–2026</p><h2>Год за годом: отрасль и наука</h2>
+    <p class="lede">Слева события рынка и отрасли, справа поворотные моменты в науке. Сумма под годом — венчур в agrifoodtech по AgFunder.</p></div>
+    <div class="card"><div class="tl" id="tl"></div></div>
+  </div>
+</section>
+
+<!-- PAPERS -->
+<section class="pane" id="p-papers" role="tabpanel" hidden>
+  <div class="stack">
+    <div><p class="eyebrow">Каталог</p><h2>168 ключевых статей</h2>
+    <p class="lede">82 работы по AI и 86 по робототехнике в одном каталоге. График можно раскрасить по статусу публикации или по треку. Нажмите на столбец года в графике, чтобы отфильтровать по году. Ссылки ведут на DOI, arXiv или PubMed.</p></div>
+    <div class="card">
+      <div class="filters">
+        <label>Поиск<input type="search" id="f-q" placeholder="автор, название, журнал, суть"></label>
+        <label>Трек<select id="f-r"><option value="">Оба</option><option value="ai">AI</option><option value="rob">Robotics</option></select></label>
+        <label>Год<select id="f-y"><option value="">Все</option></select></label>
+        <label>Тема<select id="f-g"><option value="">Все</option></select></label>
+        <label>Статус<select id="f-s"><option value="">Все</option></select></label>
+      </div>
+      <div class="row between" style="margin-top:12px">
+        <div class="checks">
+          <label><input type="checkbox" id="f-kz"> Казахстан и Центральная Азия</label>
+          <label><input type="checkbox" id="f-v"> Требуют сверки</label>
+        </div>
+        <div class="row"><span class="count" id="p-count"></span><button class="chip" id="f-reset" style="border:0;cursor:pointer">Сбросить</button></div>
+      </div>
+      <div class="row between" style="margin-top:16px"><span class="sub" style="margin:0">Статьи по годам</span><div class="seg" role="group" aria-label="Раскраска" id="seg-pc"><button aria-pressed="true" data-v="st">По статусу</button><button aria-pressed="false" data-v="tr">По треку</button></div></div>
+      <div id="c-papers" style="margin-top:8px"></div>
+      <div class="legend" id="lg-papers"></div>
+    </div>
+    <div class="tscroll"><table id="t-papers"></table></div>
+  </div>
+</section>
+
+<!-- ROBOTS -->
+<section class="pane" id="p-field" role="tabpanel" hidden>
+  <div class="stack">
+    <div><p class="eyebrow">Лаборатория и поле</p><h2>Цифры падают, как только система выходит в поле</h2>
+    <p class="lede">Главный сквозной сюжет обоих треков. В AI это разрыв между случайной и временной проверкой, в робототехнике — между макетом или лучшими условиями и реальным садом.</p></div>
+    <div class="card"><h3>Лучшие условия против реальных</h3><p class="sub">каждая строка — одна система или модель из отчётов</p>
+      <div id="c-dumb" style="margin-top:12px"></div><div class="legend" id="lg-dumb"></div>
+      <p class="note">R² прогноза урожая показан в масштабе ×100, чтобы поместиться на одну шкалу с процентами. Две строки взяты из препринтов.</p></div>
+    <div><h3>Роботы-сборщики: плато около 80% при 6–8 с на плод</h3>
+    <p class="lede">Лучшие рецензируемые полевые результаты. Идеальная система была бы в левом верхнем углу: быстро и почти без промахов. Вертикальная линия показывает диапазон, если в работе он указан.</p></div>
+    <div class="card"><div id="c-scatter"></div><div class="legend" id="lg-scatter"></div>
+      <p class="note">Около 20% отказов у сборщиков яблок приходится на перекрытие плодов листвой и ветками. Это вопрос архитектуры сада, а не алгоритмов. Серая точка — среднее по прототипам (66%, 33 с). В отчёте она приписана Kootstra 2021, но совпадает с Bac et al. 2014, см. раздел «Проверка».</p></div>
+    <div class="tscroll"><table id="t-field"></table></div>
+  </div>
+</section>
+
+<!-- KZ -->
+<section class="pane" id="p-kz" role="tabpanel" hidden>
+  <div class="stack">
+    <div><p class="eyebrow">Казахстан, Центральная Азия, Россия</p><h2>Сильная господдержка, почти пустая научная база</h2>
+    <p class="lede">2026 год объявлен Годом цифровизации и AI. Рынок быстро переходит от импорта к локальной сборке, а опубликованных полевых данных почти нет.</p></div>
+    <div class="tiles">
+      <div class="tile"><b>7 → 103</b><span>дрона у фитосанитарной службы</span><small>2025 → 2026: 57 мониторинг, 46 обработки</small></div>
+      <div class="tile"><b>39 млн</b><span>голов скота идентифицировано</span><small>ИСЖ, gosagro.kz</small></div>
+      <div class="tile"><b>500 в год</b><span>агродронов на заводе Avatar</span><small>Туркестанская обл., около $20 тыс. за дрон</small></div>
+      <div class="tile"><b>33–37</b><span>доильных роботов по открытым данным</span><small>в отчёте 37–41, пересчёт по фермам даёт 33–37</small></div>
+      <div class="tile"><b>&gt;700 тыс. га</b><span>под водосберегающими технологиями</span><small>окупаемость определяют субсидии</small></div>
+      <div class="tile"><b>12,6%</b><span>лизинг дронов КазАгроФинанс</span><small>до 37 месяцев, взнос от 30%</small></div>
+    </div>
+    <div>
+      <h3>Научная повестка: что делать первым</h3>
+      <p class="sub" style="max-width:80ch">Все пункты обоих треков в одном списке. Порядок, стоимость и эффект — моя оценка по трём критериям: цена данных, уникальность результата для мировой науки и наличие готовой базы (Alpysbay 2026, парк дронов фитосанитарной службы).</p>
+      <div class="agenda" id="agenda" style="margin-top:14px"></div>
+    </div>
+    <div class="grid2">
+      <div>
+        <h3>Пробелы в робототехнике</h3>
+        <div class="tscroll" style="margin-top:12px"><table id="t-gaps"></table></div>
+      </div>
+      <div>
+        <h3>Ниши для игрока из Алматы</h3>
+        <div class="card" style="margin-top:12px">
+          <ul class="points">
+            <li><span class="n">P1</span><div><b>Дроны-как-услуга для садов и виноградников юга.</b> Маржу строить на агрономии, а не на полёте.</div></li>
+            <li><span class="n">P1</span><div><b>Сервис, ремонт и обучение пилотов.</b> Хаб в Алматы с выходом на Кыргызстан и Узбекистан.</div></li>
+            <li><span class="n">P1</span><div><b>Агро-LLM и агенты на казахском и русском</b> для Telegram и WhatsApp с проверенной базой знаний (RAG).</div></li>
+            <li><span class="n">P2</span><div><b>Ретрофит автопилотов и RTK-поправки</b> для зернового севера, с гарантией экономии.</div></li>
+            <li><span class="n">P2</span><div><b>Сервис доильных роботов и послеуборочная сортировка</b> алматинских яблок.</div></li>
+            <li><span class="n">✕</span><div><b>Не делать:</b> собственных роботов-сборщиков, автономные тракторы и вертикальные фермы.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>Региональные рецензируемые работы</h3>
+      <div class="tscroll" style="margin-top:12px"><table id="t-kzlit"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- CHECKS -->
+<section class="pane" id="p-checks" role="tabpanel" hidden>
+  <div class="stack">
+    <div><p class="eyebrow">Для автора</p><h2>Что поправить перед публикацией</h2>
+    <p class="lede">Нестыковки между четырьмя документами и методологические замечания. Счётчики ссылок ниже считаются прямо по каталогу статей.</p></div>
+    <div class="tiles" id="chk-tiles"></div>
+    <div class="card" id="issues"></div>
+  </div>
+</section>
+
+<footer>Единая версия AI + Robotics. Источник: четыре документа «AI/ML в сельском хозяйстве» и «Агроробототехника», 2020–2026, подготовлены в сентябре 2026. Цифры компаний (DJI, Deere, Carbon Robotics, Cognitive Pilot) — их собственные заявления. Рыночные прогнозы агентств — коммерческие оценки с непрозрачной методологией.</footer>
+</main>
+<div id="tip" hidden></div>
+
+<script>
+const PAPERS = [{"y": 2020, "r": "ai", "a": "Ploton P. et al.", "t": "Spatial validation reveals poor predictive performance of large-scale ecological mapping models", "j": "Nature Communications 11: 4540", "d": "10.1038/s41467-020-18321-y", "dir": "Валидация", "s": "Показали, что случайная кросс-валидация скрывает слабую предсказательную силу ML-карт; отправная точка критики валидации", "st": "Журнал"}, {"y": 2020, "r": "ai", "a": "van Klompenburg T., Kassahun A., Catal C.", "t": "Crop yield prediction using machine learning: A systematic literature review", "j": "Computers and Electronics in Agriculture 177: 105709", "d": "10.1016/j.compag.2020.105709", "dir": "ДЗЗ / урожай", "s": "Самый цитируемый систематический обзор ML для прогноза урожая (Wageningen)", "st": "Журнал"}, {"y": 2020, "r": "ai", "a": "David E. et al.", "t": "Global Wheat Head Detection (GWHD) dataset", "j": "Plant Phenomics 2020: 3521852", "d": "10.34133/2020/3521852", "dir": "Фенотипирование / датасет", "s": "Первый мультистрановой бенчмарк детекции колосьев пшеницы: 4700 изображений, 7 стран", "st": "Журнал"}, {"y": 2020, "r": "ai", "a": "Rußwurm M., Körner M.", "t": "Self-attention for raw optical satellite time series classification", "j": "ISPRS J. Photogramm. Remote Sens. 169: 421–435", "d": "10.1016/j.isprsjprs.2020.06.006", "dir": "ДЗЗ / картирование культур", "s": "Сравнение DL-моделей на сырых данных Sentinel-2; трансформеры для классификации культур", "st": "Журнал"}, {"y": 2020, "r": "ai", "a": "Sainte Fare Garnot V. et al.", "t": "Satellite image time series classification with pixel-set encoders and temporal self-attention (PSE-TAE)", "j": "CVPR 2020, pp. 12325–12334", "d": "—", "dir": "ДЗЗ / картирование культур", "s": "Архитектура с временным self-attention, ставшая эталоном для временных рядов снимков", "st": "Конференция"}, {"y": 2020, "r": "ai", "a": "Waldner F., Diakogiannis F.I.", "t": "Deep learning on edge: extracting field boundaries from satellite images with a CNN", "j": "Remote Sensing of Environment 245: 111741", "d": "10.1016/j.rse.2020.111741", "dir": "ДЗЗ / границы полей", "s": "Выделение границ полей свёрточной сетью; основа масштабного картирования полей", "st": "Журнал"}, {"y": 2020, "r": "ai", "a": "Diakogiannis F.I. et al.", "t": "ResUNet-a: A deep learning framework for semantic segmentation of remotely sensed data", "j": "ISPRS J. Photogramm. Remote Sens. 162: 94–114", "d": "10.1016/j.isprsjprs.2020.01.013", "dir": "ДЗЗ / сегментация", "s": "Архитектура сегментации, широко используемая для картирования полей", "st": "Журнал"}, {"y": 2020, "r": "ai", "a": "Wolanin A. et al.", "t": "Estimating and understanding crop yields with explainable deep learning in the Indian Wheat Belt", "j": "Environmental Research Letters 15(2)", "d": "10.1088/1748-9326/ab68ac", "dir": "ДЗЗ / урожай, XAI", "s": "Прогноз урожая пшеницы с объяснимым DL; ранний пример XAI в агро", "st": "Журнал"}, {"y": 2020, "r": "ai", "a": "Jiang H. et al.", "t": "A deep learning approach to conflating heterogeneous geospatial data for corn yield estimation", "j": "Global Change Biology 26(3): 1754–1766", "d": "10.1111/gcb.14885", "dir": "ДЗЗ / урожай", "s": "DL-объединение спутниковых, погодных и почвенных данных для прогноза урожая кукурузы по округам США", "st": "Журнал"}, {"y": 2020, "r": "ai", "a": "Jiang Y., Li C.", "t": "Convolutional neural networks for image-based high-throughput plant phenotyping: A review", "j": "Plant Phenomics 2020: 4152816", "d": "10.34133/2020/4152816", "dir": "Фенотипирование", "s": "Обзор CNN в высокопроизводительном фенотипировании", "st": "Журнал"}, {"y": 2020, "r": "ai", "a": "Chiu M.T. et al.", "t": "Agriculture-Vision: A large aerial image database for agricultural pattern analysis", "j": "CVPR 2020", "d": "—", "dir": "CV / датасет", "s": "Крупный датасет аэрофото полей; основа воркшопа Agriculture-Vision на CVPR", "st": "Конференция"}, {"y": 2020, "r": "ai", "a": "Fuentes A. et al.", "t": "Deep learning-based hierarchical cattle behavior recognition with spatio-temporal information", "j": "Computers and Electronics in Agriculture 177: 105627", "d": "—", "dir": "Животноводство", "s": "Распознавание поведения КРС по видео с учётом пространственно-временной информации", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "Kattenborn T. et al.", "t": "Review on convolutional neural networks (CNN) in vegetation remote sensing", "j": "ISPRS J. Photogramm. Remote Sens. 173: 24–49", "d": "10.1016/j.isprsjprs.2020.12.010", "dir": "ДЗЗ / обзор", "s": "Канонический обзор CNN для дистанционного зондирования растительности", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "Poggio L. et al.", "t": "SoilGrids 2.0: producing soil information for the globe with quantified spatial uncertainty", "j": "SOIL 7: 217–240", "d": "10.5194/soil-7-217-2021", "dir": "Почва / углерод", "s": "Глобальные почвенные карты 250 м с явной неопределённостью; ~240 тыс. точек наблюдений", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "Burke M., Driscoll A., Lobell D.B., Ermon S.", "t": "Using satellite imagery to understand and promote sustainable development", "j": "Science 371: eabe8628", "d": "10.1126/science.abe8628", "dir": "ДЗЗ / обзор", "s": "Программный обзор спутников и ML для целей устойчивого развития, включая урожайность", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "Paudel D. et al.", "t": "Machine learning for large-scale crop yield forecasting", "j": "Agricultural Systems 187: 103016", "d": "10.1016/j.agsy.2020.103016", "dir": "ДЗЗ / урожай", "s": "Модульный ML-подход к прогнозу урожая для европейской системы мониторинга", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "Shahhosseini M. et al.", "t": "Coupling machine learning and crop modeling improves crop yield prediction in the US Corn Belt", "j": "Scientific Reports 11: 1606", "d": "10.1038/s41598-020-80820-1", "dir": "Гибрид ML + модель", "s": "Добавление переменных модели APSIM в ML снизило RMSE прогноза урожая на 7–20%", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "David E. et al.", "t": "Global Wheat Head Detection 2021: an improved dataset for benchmarking wheat head detection methods", "j": "Plant Phenomics 2021: 9846158", "d": "10.34133/2021/9846158", "dir": "Фенотипирование / датасет", "s": "Расширенная и очищенная версия GWHD: +5 стран, пример эволюции бенчмарка", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "Heuvelink G.B.M. et al.", "t": "Machine learning in space and time for modelling soil organic carbon change", "j": "European Journal of Soil Science 72: 1607–1623", "d": "10.1111/ejss.12998", "dir": "Почва / углерод", "s": "Методология пространственно-временного ML для изменений почвенного углерода (основа MRV)", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "Hasan A.S.M.M. et al.", "t": "A survey of deep learning techniques for weed detection from images", "j": "Computers and Electronics in Agriculture 184: 106067", "d": "10.1016/j.compag.2021.106067", "dir": "CV / сорняки", "s": "Базовый обзор DL для детекции сорняков: данные, модели, метрики", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "Chen C., Zhu W., Norton T.", "t": "Behaviour recognition of pigs and cattle: journey from computer vision to deep learning", "j": "Computers and Electronics in Agriculture 187: 106255", "d": "10.1016/j.compag.2021.106255", "dir": "Животноводство", "s": "Обзор перехода от классического CV к DL в распознавании поведения свиней и КРС", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "Andrew W. et al.", "t": "Visual identification of individual Holstein-Friesian cattle via deep metric learning", "j": "Computers and Electronics in Agriculture 185: 106133", "d": "10.1016/j.compag.2021.106133", "dir": "Животноводство", "s": "Идентификация отдельных коров по окрасу с помощью metric learning", "st": "Журнал"}, {"y": 2021, "r": "ai", "a": "Tseng G. et al.", "t": "CropHarvest: A global dataset for crop-type classification", "j": "NeurIPS 2021 Datasets & Benchmarks", "d": "—", "dir": "Датасет / картирование", "s": "Глобальный открытый датасет «пашня / не пашня» и типов культур", "st": "Конференция"}, {"y": 2021, "r": "ai", "a": "Sainte Fare Garnot V., Landrieu L.", "t": "Panoptic segmentation of satellite image time series with convolutional temporal attention networks (PASTIS)", "j": "ICCV 2021, pp. 4872–4881", "d": "—", "dir": "ДЗЗ / картирование культур", "s": "Паноптическая сегментация полей; датасет PASTIS стал стандартом", "st": "Конференция"}, {"y": 2021, "r": "ai", "a": "Meyer H., Pebesma E.", "t": "Predicting into unknown space? Estimating the area of applicability of spatial prediction models", "j": "Methods in Ecology and Evolution 12(9): 1620–1633", "d": "10.1111/2041-210X.13650", "dir": "Валидация", "s": "Метод «области применимости» модели: где ML-карте нельзя доверять", "st": "Журнал"}, {"y": 2022, "r": "ai", "a": "Potapov P. et al.", "t": "Global maps of cropland extent and change show accelerated cropland expansion in the twenty-first century", "j": "Nature Food 3: 19–28", "d": "10.1038/s43016-021-00429-z", "dir": "ДЗЗ / картирование пашни", "s": "Глобальная хронология пашни 2000–2019: площадь +9%, на душу населения −10%", "st": "Журнал"}, {"y": 2022, "r": "ai", "a": "Meyer H., Pebesma E.", "t": "Machine learning-based global maps of ecological variables and the challenge of assessing them", "j": "Nature Communications 13: 2208", "d": "10.1038/s41467-022-29838-9", "dir": "Валидация", "s": "Критика глобальных ML-карт: качество предсказаний вдали от обучающих данных нельзя оценить", "st": "Журнал"}, {"y": 2022, "r": "ai", "a": "Kattenborn T. et al.", "t": "Spatially autocorrelated training and validation samples inflate performance assessment of convolutional neural networks", "j": "ISPRS Open J. Photogramm. Remote Sens. 5: 100018", "d": "10.1016/j.ophoto.2022.100018 (сверить)", "dir": "Валидация", "s": "Автокорреляция выборок завышает метрики CNN в ДЗЗ", "st": "Журнал"}, {"y": 2022, "r": "ai", "a": "Tzachor A. et al.", "t": "Responsible artificial intelligence in agriculture requires systemic understanding of risks and externalities", "j": "Nature Machine Intelligence 4: 104–109", "d": "10.1038/s42256-022-00440-4", "dir": "Этика / политика", "s": "Системные риски AI в агро: данные, социально-экологические последствия, безопасность", "st": "Журнал"}, {"y": 2022, "r": "ai", "a": "Lobell D.B., Di Tommaso S., Burney J.A.", "t": "Globally ubiquitous negative effects of nitrogen dioxide on crop growth", "j": "Science Advances 8: eabm9909", "d": "10.1126/sciadv.abm9909", "dir": "ДЗЗ / урожай", "s": "Спутники + ML для причинного анализа влияния NO₂ на урожаи", "st": "Журнал"}, {"y": 2022, "r": "ai", "a": "Shuai G., Basso B.", "t": "Subfield maize yield prediction improves when in-season crop water deficit is included in remote sensing imagery-based models", "j": "Remote Sensing of Environment 272: 112938", "d": "—", "dir": "ДЗЗ / урожай", "s": "Учёт водного дефицита улучшает субполевой прогноз урожая", "st": "Журнал"}, {"y": 2022, "r": "ai", "a": "Cong Y. et al.", "t": "SatMAE: Pre-training transformers for temporal and multi-spectral satellite imagery", "j": "NeurIPS 2022", "d": "—", "dir": "Foundation models", "s": "MAE-предобучение для мультиспектральных временных рядов (группа Ermon/Lobell)", "st": "Конференция"}, {"y": 2022, "r": "ai", "a": "Fan J. et al.", "t": "A GNN-RNN approach for harnessing geospatial and temporal information: application to crop yield prediction", "j": "AAAI 2022, 36: 11873–11881", "d": "—", "dir": "ДЗЗ / урожай", "s": "Графовые сети учитывают соседство округов при прогнозе урожая", "st": "Конференция"}, {"y": 2022, "r": "ai", "a": "Sainte Fare Garnot V., Landrieu L., Chehata N.", "t": "Multi-modal temporal attention models for crop mapping from satellite time series", "j": "ISPRS J. Photogramm. Remote Sens. (2022)", "d": "—", "dir": "ДЗЗ / картирование культур", "s": "Слияние оптики и SAR во временных attention-моделях", "st": "Журнал"}, {"y": 2022, "r": "ai", "a": "Noyan M.A.", "t": "Uncovering bias in the PlantVillage dataset", "j": "arXiv:2206.04374", "d": "arXiv:2206.04374", "dir": "CV / болезни, валидация", "s": "Классификатор по 8 пикселям фона даёт 49% точности: датасет содержит «подсказки»", "st": "Препринт"}, {"y": 2022, "r": "ai", "a": "Wang S., Waldner F., Lobell D.B.", "t": "Unlocking large-scale crop field delineation in smallholder farming systems with transfer learning and weak supervision", "j": "Remote Sensing 14(22)", "d": "—", "dir": "ДЗЗ / границы полей", "s": "Выделение полей мелких хозяйств с transfer learning и слабой разметкой", "st": "MDPI"}, {"y": 2023, "r": "ai", "a": "Lam R. et al.", "t": "Learning skillful medium-range global weather forecasting (GraphCast)", "j": "Science 382: 1416–1421", "d": "10.1126/science.adi2336", "dir": "Погода / климат", "s": "AI-прогноз на 10 дней лучше ECMWF HRES на 90% из 1380 показателей; осадки не заявлены", "st": "Журнал"}, {"y": 2023, "r": "ai", "a": "Bi K. et al.", "t": "Accurate medium-range global weather forecasting with 3D neural networks (Pangu-Weather)", "j": "Nature 619: 533–538", "d": "10.1038/s41586-023-06185-3", "dir": "Погода / климат", "s": "Первая AI-модель погоды уровня численных, опубликованная в Nature", "st": "Журнал"}, {"y": 2023, "r": "ai", "a": "Van Tricht K. et al.", "t": "WorldCereal: a dynamic open-source system for global-scale, seasonal, and reproducible crop and irrigation mapping", "j": "Earth System Science Data 15: 5491–5515", "d": "10.5194/essd-15-5491-2023", "dir": "ДЗЗ / картирование культур", "s": "Первые глобальные 10-м сезонные карты культур и орошения (2021)", "st": "Журнал"}, {"y": 2023, "r": "ai", "a": "Tzachor A. et al.", "t": "Large language models and agricultural extension services", "j": "Nature Food 4: 941–948", "d": "10.1038/s43016-023-00867-x", "dir": "LLM", "s": "Повестка LLM в агроконсультировании и риски для мелких фермеров", "st": "Журнал"}, {"y": 2023, "r": "ai", "a": "Wang K. et al.", "t": "DNNGP, a deep neural network-based method for genomic prediction using multi-omics data in plants", "j": "Molecular Plant 16(1): 279–293", "d": "10.1016/j.molp.2022.11.004", "dir": "Геномика / селекция", "s": "DL для геномного прогноза с мульти-омикс данными; сравнение с GBLUP, LightGBM, SVR", "st": "Журнал"}, {"y": 2023, "r": "ai", "a": "Jakubik J. et al.", "t": "Foundation models for generalist geospatial artificial intelligence (Prithvi)", "j": "arXiv:2310.18660", "d": "arXiv:2310.18660", "dir": "Foundation models", "s": "Первая открытая geospatial FM NASA/IBM на данных HLS", "st": "Препринт"}, {"y": 2023, "r": "ai", "a": "Tseng G. et al.", "t": "Lightweight, pre-trained transformers for remote sensing timeseries (Presto)", "j": "arXiv:2304.14065", "d": "arXiv:2304.14065", "dir": "Foundation models", "s": "Лёгкая FM для пиксельных временных рядов; позже развёрнута в WorldCereal", "st": "Препринт"}, {"y": 2023, "r": "ai", "a": "Silva B. et al.", "t": "GPT-4 as an agronomist assistant? Answering agriculture exams using large language models", "j": "arXiv:2310.06225", "d": "arXiv:2310.06225", "dir": "LLM", "s": "GPT-4 ответил верно на 93% вопросов агрономических экзаменов США, Бразилии и Индии", "st": "Препринт"}, {"y": 2023, "r": "ai", "a": "Nguyen T. et al.", "t": "ClimaX: A foundation model for weather and climate", "j": "ICML 2023 (arXiv:2301.10343)", "d": "arXiv:2301.10343", "dir": "Погода / климат", "s": "Одна из первых FM для погоды и климата", "st": "Конференция"}, {"y": 2024, "r": "ai", "a": "Liu L. et al.", "t": "Knowledge-guided machine learning can improve carbon cycle quantification in agroecosystems (KGML-ag-Carbon)", "j": "Nature Communications 15: 357", "d": "10.1038/s41467-023-43860-5", "dir": "Гибрид ML + модель, углерод", "s": "KGML превзошёл процессные модели и чистый ML в оценке углерода на кукурузном поясе США", "st": "Журнал"}, {"y": 2024, "r": "ai", "a": "Mendoza-Revilla J. et al.", "t": "A foundational large language model for edible plant genomes (AgroNT)", "j": "Communications Biology 7: 835", "d": "10.1038/s42003-024-06465-2", "dir": "Геномика / ДНК-LM", "s": "ДНК-языковая модель на геномах 48 видов растений; Plants Genomic Benchmark", "st": "Журнал"}, {"y": 2024, "r": "ai", "a": "Montesinos-López O.A. et al.", "t": "Multimodal deep learning for genomic prediction in plant breeding (название сверить)", "j": "Genetics", "d": "10.1093/genetics/iyae161 (сверить)", "dir": "Геномика / селекция", "s": "Мультимодальное DL в геномном прогнозе; сравнение с классическими моделями", "st": "Журнал"}, {"y": 2024, "r": "ai", "a": "Kochkov D. et al.", "t": "Neural general circulation models for weather and climate (NeuralGCM)", "j": "Nature 632: 1060–1066", "d": "10.1038/s41586-024-07744-y (сверить)", "dir": "Погода / климат", "s": "Гибрид физического ядра и ML для погоды и климата", "st": "Журнал"}, {"y": 2024, "r": "ai", "a": "Price I. et al.", "t": "Probabilistic weather forecasting with machine learning (GenCast)", "j": "Nature 637: 84–90 (онлайн — дек. 2024)", "d": "10.1038/s41586-024-08252-9", "dir": "Погода / климат", "s": "Вероятностный AI-прогноз на 15 дней: лучше ENS на 97,2% из 1320 показателей", "st": "Журнал"}, {"y": 2024, "r": "ai", "a": "Ma Y., Chen S., Ermon S., Lobell D.B.", "t": "Transfer learning in environmental remote sensing", "j": "Remote Sensing of Environment 301: 113924", "d": "10.1016/j.rse.2023.113924", "dir": "ДЗЗ / transfer learning", "s": "Обзор переноса знаний в ДЗЗ: когда он работает и когда нет", "st": "Журнал"}, {"y": 2024, "r": "ai", "a": "Авторы обзора", "t": "Deep learning in image-based plant phenotyping (название сверить)", "j": "Annual Review of Plant Biology 75", "d": "10.1146/annurev-arplant-070523-042828", "dir": "Фенотипирование", "s": "Авторитетный обзор: главное узкое место — извлечение смысла из массивов изображений", "st": "Журнал"}, {"y": 2024, "r": "ai", "a": "Parsa S. et al.", "t": "Autonomous strawberry harvesting robotic system (название сверить)", "j": "Journal of Field Robotics", "d": "10.1002/rob.22229", "dir": "Робототехника", "s": "Собрано 87% обнаруженных ягод, 83% доступных к срыву (теплица)", "st": "Журнал"}, {"y": 2024, "r": "ai", "a": "Rajendran V. et al.", "t": "Towards autonomous selective harvesting: a review of robot perception, robot design, motion planning and control", "j": "Journal of Field Robotics", "d": "10.1002/rob.22230", "dir": "Робототехника", "s": "Обзор восприятия, конструкции и управления роботов для селективного сбора", "st": "Журнал"}, {"y": 2024, "r": "ai", "a": "Manvi R. et al.", "t": "Large language models are geographically biased", "j": "ICML 2024", "d": "—", "dir": "LLM / этика", "s": "Систематический географический перекос LLM (группа Ermon)", "st": "Конференция"}, {"y": 2024, "r": "ai", "a": "Szwarcman D. et al.", "t": "Prithvi-EO-2.0: A versatile multi-temporal foundation model for Earth observation applications", "j": "arXiv:2412.02732 (сверить)", "d": "arXiv:2412.02732", "dir": "Foundation models", "s": "Вторая версия Prithvi: 600 млн параметров, 4,2 млн временных рядов HLS", "st": "Препринт"}, {"y": 2024, "r": "ai", "a": "Marsocci V. et al.", "t": "PANGAEA: A global and inclusive benchmark for geospatial foundation models", "j": "arXiv:2412.04204", "d": "arXiv:2412.04204", "dir": "Foundation models / бенчмарк", "s": "GeoFM не превосходят supervised-модели стабильно; при полной разметке лучше UNet", "st": "Препринт"}, {"y": 2024, "r": "ai", "a": "Survey authors", "t": "A systematic survey of public computer vision datasets for precision livestock farming", "j": "Computers and Electronics in Agriculture", "d": "10.1016/j.compag.2024.109718", "dir": "Животноводство / датасеты", "s": "Систематизация открытых CV-датасетов для PLF", "st": "Журнал"}, {"y": 2025, "r": "ai", "a": "Hollmann N. et al.", "t": "Accurate predictions on small data with a tabular foundation model (TabPFN)", "j": "Nature 637: 319–326", "d": "10.1038/s41586-024-08328-6", "dir": "Foundation models / табличные", "s": "FM для малых табличных данных; стала сильным бейзлайном в прогнозе урожая", "st": "Журнал"}, {"y": 2025, "r": "ai", "a": "Zhai J. et al.", "t": "Cross-species modeling of plant genomes at single-nucleotide resolution using a pretrained DNA language model (PlantCaduceus)", "j": "PNAS 122: e2421738122", "d": "10.1073/pnas.2421738122", "dir": "Геномика / ДНК-LM", "s": "Перенос с Arabidopsis на кукурузу: в 1,45–7,23 раза лучше предыдущих ДНК-моделей", "st": "Журнал"}, {"y": 2025, "r": "ai", "a": "Crossa J. et al.", "t": "Statistical machine learning and software for genomic selection (название сверить)", "j": "Trends in Plant Science", "d": "10.1016/j.tplants.2024.12.009 (сверить)", "dir": "Геномика / селекция", "s": "Обзор CIMMYT: статистический ML и ПО для демократизации геномной селекции", "st": "Журнал"}, {"y": 2025, "r": "ai", "a": "Gao et al.", "t": "Review of deep learning in genomic prediction (название сверить)", "j": "Journal of Integrative Plant Biology", "d": "10.1111/jipb.13914", "dir": "Геномика / селекция", "s": "DL сопоставим или лучше линейных моделей при больших данных; от CNN к трансформерам", "st": "Журнал"}, {"y": 2025, "r": "ai", "a": "Bodnar C. et al.", "t": "A foundation model for the Earth system (Aurora)", "j": "Nature 641: 1180–1187", "d": "10.1038/s41586-025-09005-y", "dir": "Погода / климат", "s": "FM Земной системы: погода, качество воздуха, волны, циклоны", "st": "Журнал"}, {"y": 2025, "r": "ai", "a": "Tseng G. et al.", "t": "Galileo: Learning global and local features of many remote sensing modalities", "j": "ICML 2025, PMLR: 60280–60300", "d": "—", "dir": "Foundation models", "s": "Мультимодальная FM для ДЗЗ; в агротестах дообучение иногда проваливается", "st": "Конференция"}, {"y": 2025, "r": "ai", "a": "Brown C.F. et al.", "t": "AlphaEarth Foundations: An embedding field model for accurate and efficient global mapping from sparse label data", "j": "arXiv:2507.22291", "d": "arXiv:2507.22291", "dir": "Foundation models", "s": "Готовые 64-мерные эмбеддинги Земли от Google DeepMind (с 2017 г. по годам)", "st": "Препринт"}, {"y": 2025, "r": "ai", "a": "Shinoda R. et al.", "t": "AgroBench: Vision-language model benchmark in agriculture", "j": "ICCV 2025", "d": "arXiv:2507.20519 (сверить)", "dir": "LLM / VLM / бенчмарк", "s": "203 культуры, 682 болезни; открытые VLM распознают сорняки почти на уровне случайного угадывания", "st": "Конференция"}, {"y": 2025, "r": "ai", "a": "Авторы Scientific Reports", "t": "A human in the loop approach to applying large language models for farm management insight", "j": "Scientific Reports", "d": "10.1038/s41598-025-30991-6", "dir": "LLM", "s": "Экзаменационные метрики плохо отражают агрономическую полезность LLM (соя, США)", "st": "Журнал"}, {"y": 2025, "r": "ai", "a": "Авторы WorldCereal", "t": "Deploying geospatial foundation models in the real world: lessons from WorldCereal", "j": "arXiv:2508.00858", "d": "arXiv:2508.00858", "dir": "Foundation models", "s": "Presto против CatBoost: прирост F1 от +0,009 (Италия) до +0,182 (Бразилия)", "st": "Препринт"}, {"y": 2025, "r": "ai", "a": "Camps-Valls G. et al.", "t": "Artificial intelligence for modeling and understanding extreme weather and climate events", "j": "Nature Communications 16: 1919", "d": "—", "dir": "Погода / климат", "s": "Обзор AI для экстремальных погодных и климатических событий", "st": "Журнал"}, {"y": 2025, "r": "ai", "a": "Авторы AgriEval", "t": "AgriEval: benchmark of LLMs in agriculture", "j": "arXiv (2025)", "d": "—", "dir": "LLM / бенчмарк", "s": "Проверка 51 модели: даже лучшие плохо справляются с управлением производством", "st": "Препринт"}, {"y": 2026, "r": "ai", "a": "Kallenberg M. et al.", "t": "CY-Bench: benchmark dataset for sub-national crop yield forecasting (название сверить)", "j": "Earth System Science Data 18", "d": "10.5194/essd-18-3997-2026 (сверить)", "dir": "ДЗЗ / урожай / бенчмарк", "s": "Открытый бенчмарк прогноза урожая, ~30 стран, стандартизированная валидация", "st": "Журнал"}, {"y": 2026, "r": "ai", "a": "Miranda M. et al.", "t": "YieldSAT: A multimodal benchmark dataset for high-resolution crop yield prediction", "j": "CVPR 2026, pp. 22920–22930", "d": "—", "dir": "ДЗЗ / урожай / бенчмарк", "s": "2176 полей, 4 страны, 12,2 млн образцов урожая 10 м; выявлен коллапс моделей при сдвиге распределения", "st": "Конференция"}, {"y": 2026, "r": "ai", "a": "Ma et al.", "t": "Harvesting AlphaEarth: Benchmarking the geospatial foundation model for agricultural downstream tasks", "j": "Int. J. Appl. Earth Obs. Geoinf. (JAG)", "d": "arXiv:2601.00857", "dir": "Foundation models", "s": "Эмбеддинги AlphaEarth соперничают с локальными моделями, но хуже переносятся и менее стабильны", "st": "Журнал"}, {"y": 2026, "r": "ai", "a": "Alpysbay M., Nurakynov S., Gapparov A., Kaldybayev A.", "t": "Crop-masked vegetation indices and TerraClimate for district-level wheat yield prediction in Kazakhstan", "j": "Agronomy 16(13): 1264", "d": "10.3390/agronomy16131264", "dir": "ДЗЗ / урожай, Казахстан", "s": "149 районов, 25 лет; R² 0,646 (пространственная CV) против 0,413 (временная)", "st": "MDPI"}, {"y": 2026, "r": "ai", "a": "Авторы Agriculture", "t": "Beyond vegetation indices: winter solar radiation and soil properties drive wheat yield prediction in the arid steppes of Kazakhstan", "j": "Agriculture 16(7): 782", "d": "10.3390/agriculture16070782", "dir": "ДЗЗ / урожай, Казахстан", "s": "XGBoost на 25-летнем ряду; ключевые предикторы — зимняя радиация и почва", "st": "MDPI"}, {"y": 2026, "r": "ai", "a": "Авторы Land", "t": "Training sample migration for temporal cropland mapping in Central Asia", "j": "Land 15(1): 156", "d": "10.3390/land15010156", "dir": "ДЗЗ / картирование, Центральная Азия", "s": "OA 86% (Казахстан) и 95% (Узбекистан); лучше глобальных продуктов в полуаридной зоне", "st": "MDPI"}, {"y": 2026, "r": "ai", "a": "Nedungadi et al. (Wageningen)", "t": "Foundation models meet agriculture: challenges beyond pretraining", "j": "arXiv:2608.30392", "d": "arXiv:2608.30392", "dir": "Foundation models", "s": "EO FM плохо принимают почву и погоду; TabPFN достиг R² 0,65, Galileo — R² −0,85", "st": "Препринт"}, {"y": 2026, "r": "ai", "a": "Авторы Agronomy", "t": "Agentic, autonomous and explainable AI in smart agriculture: a systematic literature review", "j": "Agronomy 16(17): 1690", "d": "10.3390/agronomy16171690", "dir": "LLM / агенты", "s": "Из 322 работ лишь 12,1% — агентные дизайны; 4,3% сочетают автономию и объяснимость", "st": "MDPI"}, {"y": 2026, "r": "ai", "a": "Авторы Geoderma", "t": "Diagnosing global soil organic carbon mapping discrepancies with interpretable machine learning", "j": "Geoderma (2026)", "d": "—", "dir": "Почва / углерод, XAI", "s": "SHAP для отсева ковариат; призыв к гармонизированным базам почвенных профилей", "st": "Журнал"}, {"y": 2026, "r": "ai", "a": "Авторы бенчмарка", "t": "Benchmarking geospatial foundation models for agriculture applications", "j": "arXiv:2606.29664", "d": "arXiv:2606.29664", "dir": "Foundation models / бенчмарк", "s": "При географическом разбиении преимущество FM сужается", "st": "Препринт"}, {"y": 2026, "r": "ai", "a": "Авторы arXiv", "t": "From foundation embeddings to cropland maps: label efficiency, temporal transferability and independent human validation", "j": "arXiv:2609.17138", "d": "arXiv:2609.17138", "dir": "Foundation models / валидация", "s": "Проверка временной переносимости эмбеддингов при картировании пашни", "st": "Препринт"}, {"y": 2026, "r": "ai", "a": "Авторы MDPI", "t": "A bibliometric review of machine learning for sustainable agri-food systems", "j": "Agriculture 16(4): 462", "d": "10.3390/agriculture16040462", "dir": "Библиометрия", "s": "648 документов Scopus: экспоненциальный рост до 2020–2021, затем консолидация", "st": "MDPI"}, {"y": 2020, "r": "rob", "a": "Arad B. et al.", "t": "Development of a sweet pepper harvesting robot (SWEEPER)", "j": "Journal of Field Robotics 37(6): 1027–1039", "d": "10.1002/rob.21937", "dir": "Сбор урожая (перец, теплица)", "s": "4 недели в коммерческой теплице, 262 плода: 61% в лучших условиях, 18% в обычных, 24 с на плод. Эталонная работа (426 цит.)", "st": "Журнал"}, {"y": 2020, "r": "rob", "a": "Xiong Y., Ge Y., Grimstad L., From P.J.", "t": "An autonomous strawberry-harvesting robot: Design, development, integration, and field evaluation", "j": "Journal of Field Robotics 37(2): 202–224", "d": "10.1002/rob.21889", "dir": "Сбор урожая (клубника)", "s": "Успех первой попытки 50–97% в зависимости от кластера, 4,6–6,1 с; окружённые ягоды не собираются", "st": "Журнал"}, {"y": 2020, "r": "rob", "a": "Lowenberg-DeBoer J., Huang I., Grigoriadis V., Blackmore S.", "t": "Economics of robots and automation in field crop production", "j": "Precision Agriculture 21: 278–299", "d": "10.1007/s11119-019-09667-5", "dir": "Экономика", "s": "Систематический обзор: 18 исследований, все нашли прибыльные сценарии, но на частичных бюджетах и данных прототипов", "st": "Журнал"}, {"y": 2020, "r": "rob", "a": "Benos L., Bechar A., Bochtis D.", "t": "Safety and ergonomics in human-robot interactive agricultural operations", "j": "Biosystems Engineering 200: 55–72", "d": "10.1016/j.biosystemseng.2020.09.009", "dir": "Безопасность, HRI", "s": "Базовая работа по безопасности и эргономике совместной работы людей и роботов (121 цит.)", "st": "Журнал"}, {"y": 2020, "r": "rob", "a": "Fountas S. et al.", "t": "Agricultural robotics for field operations", "j": "Sensors 20(9): 2672", "d": "10.3390/s20092672", "dir": "Обзор полевых роботов", "s": "Обзор роботов для прополки, посева, опрыскивания, сбора и мониторинга; узкие места — скорость алгоритмов и связь робот–орудие", "st": "MDPI, Frontiers"}, {"y": 2020, "r": "rob", "a": "McAllister W. et al.", "t": "Agbots 2.0: Weeding denser fields with fewer robots", "j": "RSS 2020 (Robotics: Science and Systems XVI)", "d": "10.15607/RSS.2020.XVI.062", "dir": "Рои роботов, прополка", "s": "Планирование групп малых роботов для прополки; в основном моделирование", "st": "Конференция"}, {"y": 2020, "r": "rob", "a": "Ahmadi A., Nardi L., Chebrolu N., Stachniss C.", "t": "Visual servoing-based navigation for monitoring row-crop fields", "j": "ICRA 2020, pp. 4920–4926", "d": "—", "dir": "Навигация по рядам", "s": "Навигация мобильного робота по рядам культуры по камере без точного GNSS", "st": "Конференция"}, {"y": 2020, "r": "rob", "a": "Kang H., Chen C.", "t": "Fast implementation of real-time fruit detection in apple orchards using deep learning", "j": "Computers and Electronics in Agriculture 168: 105108", "d": "10.1016/j.compag.2019.105108 (сверить)", "dir": "Восприятие для сбора", "s": "Детекция яблок в реальном времени — основа системы MARS (Monash)", "st": "Журнал"}, {"y": 2020, "r": "rob", "a": "Zhang X. et al.", "t": "Field evaluation of targeted shake-and-catch harvesting technologies for fresh market apple", "j": "Transactions of the ASABE 63(6): 1759–1771", "d": "—", "dir": "Сбор урожая (яблоки)", "s": "Альтернатива поштучному сбору: адресное встряхивание с улавливанием плодов", "st": "Журнал"}, {"y": 2020, "r": "rob", "a": "Zahid A. et al.", "t": "Development of an integrated 3R end-effector with a cartesian manipulator for pruning apple trees", "j": "Computers and Electronics in Agriculture 179: 105837", "d": "—", "dir": "Обрезка, манипуляция", "s": "Рабочий орган и манипулятор для роботизированной обрезки яблонь", "st": "Журнал"}, {"y": 2021, "r": "rob", "a": "Sivakumar A.N. et al.", "t": "Learned visual navigation for under-canopy agricultural robots (CropFollow)", "j": "RSS 2021 (Robotics: Science and Systems XVII)", "d": "10.15607/RSS.2021.XVII.019", "dir": "Навигация под пологом", "s": "Монокулярная камера: 485 м на вмешательство против 286 м у лидара, >25 км испытаний (Illinois)", "st": "Конференция"}, {"y": 2021, "r": "rob", "a": "Kootstra G., Wang X., Blok P.M., Hemming J., van Henten E.", "t": "Selective harvesting robotics: Current research, trends, and future directions", "j": "Current Robotics Reports 2(1)", "d": "10.1007/s43154-020-00034-1", "dir": "Сбор урожая, обзор", "s": "В среднем по прототипам 66% успешности и 33 с на плод — далеко от коммерческого уровня (Wageningen)", "st": "Журнал"}, {"y": 2021, "r": "rob", "a": "Oliveira L.F.P., Moreira A.P., Silva M.F.", "t": "Advances in agriculture robotics: A state-of-the-art review and challenges ahead", "j": "Robotics 10(2): 52", "d": "10.3390/robotics10020052", "dir": "Обзор агроробототехники", "s": "Широко цитируемый обзор (371 цит.): платформы, задачи, стадии разработки, страны", "st": "MDPI, Frontiers"}, {"y": 2021, "r": "rob", "a": "Lagnelöv O. et al.", "t": "Cost analysis of autonomous battery electric field tractors in agriculture", "j": "Biosystems Engineering 204: 358–376", "d": "10.1016/j.biosystemseng.2021.02.005", "dir": "Экономика, электротракторы", "s": "Модель затрат автономных электрических тракторов; выгода при замене одной большой машины несколькими малыми", "st": "Журнал"}, {"y": 2021, "r": "rob", "a": "Lowenberg-DeBoer J., Franklin K., Behrendt K., Godwin R.", "t": "Economics of autonomous equipment for arable farms", "j": "Precision Agriculture 22(6): 1992–2006", "d": "10.1007/s11119-021-09822-x", "dir": "Экономика автономии", "s": "Модель на данных проекта Hands Free Hectare: автономия позволяет средним фермам приблизиться к минимальной себестоимости", "st": "Журнал"}, {"y": 2021, "r": "rob", "a": "Lowenberg-DeBoer J. et al.", "t": "Lessons to be learned in adoption of autonomous equipment for field crops", "j": "Applied Economic Perspectives and Policy", "d": "10.1002/aepp.13177", "dir": "Экономика, регулирование", "s": "Требования к постоянному надзору за роботами часто намного выше, чем фермеры выбрали бы сами", "st": "Журнал"}, {"y": 2021, "r": "rob", "a": "Yandun F. et al.", "t": "Reaching pruning locations in a vine using a deep reinforcement learning policy", "j": "ICRA 2021, pp. 2400–2406", "d": "—", "dir": "Обрезка, RL", "s": "Политика обучения с подкреплением для подхода манипулятора к точкам обрезки лозы (CMU)", "st": "Конференция"}, {"y": 2021, "r": "rob", "a": "Silwal A. et al.", "t": "A robust illumination-invariant camera system for agricultural applications", "j": "IROS 2021, pp. 3292–3298", "d": "—", "dir": "Восприятие", "s": "Камера со вспышкой, устойчивая к освещению в поле — основа робота Bumblebee", "st": "Конференция"}, {"y": 2021, "r": "rob", "a": "Hasan A.S.M.M. et al.", "t": "A survey of deep learning techniques for weed detection from images", "j": "Computers and Electronics in Agriculture 184: 106067", "d": "10.1016/j.compag.2021.106067", "dir": "Восприятие для прополки", "s": "Базовый обзор DL-детекции сорняков — основа роботов точечной прополки", "st": "Журнал"}, {"y": 2021, "r": "rob", "a": "Авторы JDS", "t": "National trends in somatic cell count after transition to automatic milking systems (название сверить)", "j": "Journal of Dairy Science 104(1): 928–936", "d": "—", "dir": "Доильные роботы", "s": "Проверка, сохраняется ли ухудшение здоровья вымени при переходе на новые поколения доильных роботов", "st": "Журнал"}, {"y": 2022, "r": "rob", "a": "Zhou H., Wang X., Au W., Kang H., Chen C.", "t": "Intelligent robots for fruit harvesting: recent developments and future challenges", "j": "Precision Agriculture 23: 1856–1907", "d": "10.1007/s11119-022-09913-3", "dir": "Сбор урожая, обзор", "s": "Предложены три ключевых показателя: успешность, время цикла, доля повреждений; массового внедрения в садах нет (290 цит.)", "st": "Журнал"}, {"y": 2022, "r": "rob", "a": "Silwal A., Yandun F., Nellithimaru A., Bates T., Kantor G.", "t": "Bumblebee: A path towards fully autonomous robotic vine pruning", "j": "Field Robotics 2(1): 1661–1696", "d": "10.55417/fr.2022051", "dir": "Обрезка винограда", "s": "Полностью автономная обрезка: 213 с на куст, точность 87% в коммерческом винограднике", "st": "Журнал"}, {"y": 2022, "r": "rob", "a": "Bu L., Chen C., Hu G., Sugirbay A., Sun H., Chen J.", "t": "Design and evaluation of a robotic apple harvester using optimized picking patterns", "j": "Computers and Electronics in Agriculture 198: 107092", "d": "10.1016/j.compag.2022.107092", "dir": "Сбор урожая (яблоки)", "s": "Оптимизация траекторий отрыва яблок для снижения усилий и повреждений", "st": "Журнал"}, {"y": 2022, "r": "rob", "a": "Zhang K., Lammers K., Chu P., Dickinson N., Li Z., Lu R.", "t": "Algorithm design and integration for a robotic apple harvesting system", "j": "IROS 2022, pp. 9217–9224", "d": "10.1109/IROS47612.2022.9981417", "dir": "Сбор урожая (яблоки)", "s": "Интеграция восприятия и управления вакуумного сборщика MSU/USDA — предшественник полевых испытаний 2024 года", "st": "Конференция"}, {"y": 2022, "r": "rob", "a": "Wang X., Kang H., Zhou H., Au W., Chen C.", "t": "Geometry-aware fruit grasping estimation for robotic harvesting in apple orchards", "j": "Computers and Electronics in Agriculture (2022)", "d": "—", "dir": "Восприятие, захват", "s": "Сеть A3N: сегментация и оценка позы захвата по RGB-D в естественном саду", "st": "Журнал"}, {"y": 2022, "r": "rob", "a": "Andreasen C., Scholle K., Saberi M.", "t": "Laser weeding with small autonomous vehicles: Friends or foes?", "j": "Frontiers in Agronomy 4: 841086", "d": "10.3389/fagro.2022.841086", "dir": "Лазерная прополка", "s": "Обзор перспектив и рисков лазерной прополки с малыми автономными машинами", "st": "MDPI, Frontiers"}, {"y": 2022, "r": "rob", "a": "Yoshida T., Onishi Y., Kawahara T., Fukao T.", "t": "Automated harvesting by a dual-arm fruit harvesting robot", "j": "ROBOMECH Journal 9: 19", "d": "—", "dir": "Сбор урожая, двурукие системы", "s": "Двурукий робот для сбора фруктов (Япония)", "st": "Журнал"}, {"y": 2022, "r": "rob", "a": "Molaei F., Ghatrehsamani S.", "t": "Kinematic-based multi-objective design optimization of a grapevine pruning robotic manipulator", "j": "AgriEngineering 4(3): 606–625", "d": "—", "dir": "Обрезка, манипуляция", "s": "Оптимизация кинематики манипулятора для обрезки винограда", "st": "MDPI, Frontiers"}, {"y": 2022, "r": "rob", "a": "You A. et al.", "t": "An autonomous robot for pruning modern, planar fruit trees", "j": "arXiv:2206.07201", "d": "arXiv:2206.07201", "dir": "Обрезка деревьев", "s": "Автономная обрезка черешни в саду UFO-формировки (штат Вашингтон)", "st": "Препринт"}, {"y": 2023, "r": "rob", "a": "Au W., Zhou H., Liu T., Kok E., Wang X., Wang M., Chen C.", "t": "The Monash Apple Retrieving System: A review on system intelligence and apple harvesting performance", "j": "Computers and Electronics in Agriculture 213: 108164", "d": "10.1016/j.compag.2023.108164", "dir": "Сбор урожая (яблоки)", "s": "MARS за сезоны 2021–2022 годов без упрощения кроны: 62,8% при 9,18 с; 70,8% и 7,91 с при хорошей видимости", "st": "Журнал"}, {"y": 2023, "r": "rob", "a": "Bai Y. et al.", "t": "Vision-based navigation and guidance for agricultural autonomous vehicles and robots: A review", "j": "Computers and Electronics in Agriculture 205: 107584", "d": "—", "dir": "Навигация, обзор", "s": "Обзор визуальной навигации агромашин и роботов", "st": "Журнал"}, {"y": 2023, "r": "rob", "a": "Adamides G., Edan Y. (сверить)", "t": "Human–robot collaboration systems in agricultural tasks: A review and roadmap", "j": "Computers and Electronics in Agriculture 204: 107541", "d": "10.1016/j.compag.2022.107541", "dir": "Взаимодействие человек–робот", "s": "Дорожная карта совместной работы людей и роботов в сельском хозяйстве", "st": "Журнал"}, {"y": 2023, "r": "rob", "a": "Ochieng et al.", "t": "Optimum flight height for the control of desert locusts using unmanned aerial vehicles (UAV)", "j": "Drones 7(4): 233", "d": "10.3390/drones7040233", "dir": "Дроны против саранчи", "s": "Оптимальная высота полёта около 10 м при внесении биопестицида против пустынной саранчи (Кения)", "st": "MDPI, Frontiers"}, {"y": 2023, "r": "rob", "a": "Al-Amin A.K.M.A., Lowenberg-DeBoer J., Franklin K., Behrendt K.", "t": "Economics of field size and shape for autonomous crop machines", "j": "Precision Agriculture", "d": "10.1007/s11119-023-10016-w", "dir": "Экономика автономии", "s": "Автономные машины могут сделать прибыльными малые поля неправильной формы", "st": "Журнал"}, {"y": 2023, "r": "rob", "a": "Aby G.R., Issa S.F.", "t": "Safety of automated agricultural machineries: A systematic literature review", "j": "Safety 9(1): 13", "d": "10.3390/safety9010013", "dir": "Безопасность", "s": "Всего 62 статьи о безопасности автономной агротехники за 10 лет, около 80% — о сенсорах, а не о рисках для людей", "st": "MDPI, Frontiers"}, {"y": 2023, "r": "rob", "a": "Chu P., Li Z., Zhang K., Chen D., Lammers K., Lu R.", "t": "O2RNet: Occluder-occludee relational network for robust apple detection in clustered orchard environments", "j": "Smart Agricultural Technology 5: 100284", "d": "10.1016/j.atech.2023.100284", "dir": "Восприятие для сбора", "s": "Детекция яблок при взаимном перекрытии плодов", "st": "Журнал"}, {"y": 2023, "r": "rob", "a": "Droukas L. et al. (сверить)", "t": "A survey of robotic harvesting systems and enabling technologies", "j": "Journal of Intelligent & Robotic Systems", "d": "10.1007/s10846-022-01793-z", "dir": "Сбор урожая, обзор", "s": "Обзор наземных сборщиков: яблоки, клубника, томаты и перец — основные культуры исследований", "st": "Журнал"}, {"y": 2023, "r": "rob", "a": "Авторы (TerraSentia, Illinois)", "t": "Under-canopy navigation for an agricultural rover based on image data", "j": "Journal of Intelligent & Robotic Systems", "d": "10.1007/s10846-023-01849-8", "dir": "Навигация под пологом", "s": "Навигация TerraSentia по изображениям на нескольких роботах, полях и локациях", "st": "Журнал"}, {"y": 2023, "r": "rob", "a": "Авторы JDS", "t": "Geographical trends for automatic milking systems research in non-pasture-based dairy farms: A scoping review", "j": "Journal of Dairy Science (2023)", "d": "—", "dir": "Доильные роботы", "s": "Скоупинг-обзор: влияние перехода на здоровье вымени минимально при адекватном менеджменте", "st": "Журнал"}, {"y": 2023, "r": "rob", "a": "Авторы Smart Agric. Technol.", "t": "Optimal use of agricultural robot in arable crop rotation: A case study from the Netherlands", "j": "Smart Agricultural Technology (2023)", "d": "—", "dir": "Экономика", "s": "Робот как дополнение к трактору в севообороте", "st": "Журнал"}, {"y": 2023, "r": "rob", "a": "Maulit A. et al.", "t": "Мультиспектральный БПЛА-датасет пшеницы, сои и ячменя (Восточный Казахстан)", "j": "Data 8: 88", "d": "—", "dir": "БПЛА-мониторинг, Казахстан", "s": "Открытый датасет для обучения моделей по местным культурам", "st": "MDPI, Frontiers"}, {"y": 2024, "r": "rob", "a": "Zhang K., Lammers K., Chu P., Li Z., Lu R.", "t": "An automated apple harvesting robot — From system design to field evaluation", "j": "Journal of Field Robotics 41: 2384–2400", "d": "10.1002/rob.22268", "dir": "Сбор урожая (яблоки)", "s": "Вакуумный захват: 82,4% в молодом саду, 65,2% в старом густом, цикл около 6 с (MSU и USDA)", "st": "Журнал"}, {"y": 2024, "r": "rob", "a": "Lammers K. et al.", "t": "Development and evaluation of a dual-arm robotic apple harvesting system (название сверить)", "j": "Computers and Electronics in Agriculture 227: 109586", "d": "10.1016/j.compag.2024.109586", "dir": "Сбор урожая, двурукие системы", "s": "Двурукая версия сборщика яблок MSU", "st": "Журнал"}, {"y": 2024, "r": "rob", "a": "Parsa S. et al.", "t": "Modular autonomous strawberry picking robotic system", "j": "Journal of Field Robotics 41: 2226–2246", "d": "10.1002/rob.22229", "dir": "Сбор урожая (клубника)", "s": "87% обнаруженных и 83% доступных ягод, 3 сорта, 2 площадки", "st": "Журнал"}, {"y": 2024, "r": "rob", "a": "Rong J. et al.", "t": "A selective harvesting robot for cherry tomatoes: Design, development, field evaluation analysis", "j": "Journal of Field Robotics", "d": "10.1002/rob.22377", "dir": "Сбор урожая (томаты)", "s": "Селективный сбор черри-томатов в теплице (Китай)", "st": "Журнал"}, {"y": 2024, "r": "rob", "a": "Rajendran V. et al.", "t": "Towards autonomous selective harvesting: A review of robot perception, robot design, motion planning and control", "j": "Journal of Field Robotics", "d": "10.1002/rob.22230", "dir": "Сбор урожая, обзор", "s": "Обзор восприятия, конструкции, планирования и управления для селективного сбора", "st": "Журнал"}, {"y": 2024, "r": "rob", "a": "De Silva R., Cielniak G., Wang G., Gao J.", "t": "Deep learning-based crop row detection for infield navigation of agri-robots", "j": "Journal of Field Robotics 41(7): 2299–2321", "d": "10.1002/rob.22238", "dir": "Навигация по рядам", "s": "Детекция рядов дешёвой камерой на датасете свёклы с 11 вариантами условий (Lincoln)", "st": "Журнал"}, {"y": 2024, "r": "rob", "a": "De Silva R., Cielniak G., Gao J.", "t": "Vision based crop row navigation under varying field conditions in arable fields", "j": "Computers and Electronics in Agriculture 217: 108581", "d": "—", "dir": "Навигация по рядам", "s": "Визуальная навигация по рядам в разных условиях поля", "st": "Журнал"}, {"y": 2024, "r": "rob", "a": "Upadhyay A. et al.", "t": "Обзор роботов точечной прополки (название сверить)", "j": "Computers and Electronics in Agriculture 225: 109363", "d": "10.1016/j.compag.2024.109363", "dir": "Прополка, обзор", "s": "Обзор роботизированной точечной прополки", "st": "Журнал"}, {"y": 2024, "r": "rob", "a": "Sivakumar A.N. et al.", "t": "Demonstrating CropFollow++: Robust under-canopy navigation with keypoints", "j": "RSS 2024", "d": "10.15607/RSS.2024.XX.023", "dir": "Навигация под пологом", "s": "Навигация по семантическим ключевым точкам — продолжение CropFollow", "st": "Конференция"}, {"y": 2024, "r": "rob", "a": "Mwitta C. et al.", "t": "Autonomous diode laser weeding mobile robot in cotton field using deep learning, visual servoing and finite state machine", "j": "Frontiers in Agronomy", "d": "10.3389/fagro.2024.1388452", "dir": "Лазерная прополка", "s": "Автономный диодный лазерный прополочный робот на хлопке", "st": "MDPI, Frontiers"}, {"y": 2024, "r": "rob", "a": "Hu R., Niu L.-T., Su W.-H.", "t": "A novel mechanical-laser collaborative intra-row weeding prototype", "j": "Frontiers in Plant Science 15", "d": "10.3389/fpls.2024.1469098", "dir": "Прополка в ряду", "s": "Гибрид механической и лазерной прополки в ряду; лазер 100 Вт эффективен (China Agricultural University)", "st": "MDPI, Frontiers"}, {"y": 2024, "r": "rob", "a": "Azhbenov V.K. et al.", "t": "Localized biopesticide application using UAVs for the control of migratory locusts in Kazakhstan", "j": "Organic Farming 10(3): 175–184", "d": "10.56578/of100302", "dir": "Дроны против саранчи, Казахстан", "s": "Novacrid с дрона — 97,5% гибели личинок за 17 дней; 4 области; снос не измерялся", "st": "Журнал"}, {"y": 2024, "r": "rob", "a": "Gislon G. et al.", "t": "Unlocking insights: text mining analysis on the health, welfare, and behavior of cows in automated milking systems", "j": "Journal of Animal Science 102: skae159", "d": "10.1093/jas/skae159", "dir": "Доильные роботы", "s": "Роботизированное доение может улучшить здоровье коров, но связанные риски требуют дальнейшего изучения", "st": "Журнал"}, {"y": 2024, "r": "rob", "a": "Clayton J., Gapparov F., Latchininsky A. et al.", "t": "Benefits of ULV application to control locusts in Caucasus and Central Asia", "j": "Outlooks on Pest Management 35(2): 47–55", "d": "—", "dir": "Борьба с саранчой, ЦА", "s": "Преимущества ультрамалообъёмных обработок против саранчи на Кавказе и в Центральной Азии", "st": "Журнал"}, {"y": 2025, "r": "rob", "a": "Sosnoskie L.M., Bill K., Butler-Jones A., Bouchelle W.M., Besançon T.E.", "t": "Deep learning-based laser weed control compared to conventional herbicide application across three vegetable production systems", "j": "Pest Management Science 81: 4922–4936", "d": "10.1002/ps.8912", "dir": "Лазерная прополка", "s": "Биомасса сорняков −≥97%, угнетение культуры ≤1%, биомасса культуры +≥30%; слабо против портулака и злаков (Cornell, Rutgers)", "st": "Журнал"}, {"y": 2025, "r": "rob", "a": "Butler-Ellis M.C. et al.", "t": "Field measurement of spray drift from a spray application by UAV", "j": "Pest Management Science", "d": "10.1002/ps.8645", "dir": "Дроны: снос", "s": "Наземный снос как у садовых опрыскивателей, воздушный — ниже штанговых; контроль дозы и равномерность неудовлетворительны", "st": "Журнал"}, {"y": 2025, "r": "rob", "a": "Duke S. et al.", "t": "Robots with lasers for weed control — photonic weed management", "j": "Pest Management Science", "d": "10.1002/ps.8937", "dir": "Лазерная прополка", "s": "Обзор фотонной (лазерной) борьбы с сорняками", "st": "Журнал"}, {"y": 2025, "r": "rob", "a": "Ahrens, Herbst, Wegener", "t": "Сравнение форсунок и роторных распылителей дронов по ISO 22866 (название сверить)", "j": "Frontiers in Agronomy", "d": "10.3389/fagro.2025.1716113", "dir": "Дроны: снос", "s": "Первые стандартизованные полевые данные о сносе у роторных распылителей (JKI)", "st": "MDPI, Frontiers"}, {"y": 2025, "r": "rob", "a": "Zhu H. et al.", "t": "Advancement and field evaluation of a dual-arm apple harvesting robot", "j": "Smart Agricultural Technology (2025)", "d": "arXiv:2506.05714", "dir": "Сбор урожая (яблоки)", "s": "Два коммерческих сада Мичигана: 80,7% и 79,7%, 5,97 с на попытку для двух рук", "st": "Журнал"}, {"y": 2025, "r": "rob", "a": "Rahimi Azghadi M. et al.", "t": "Роботизированное точечное опрыскивание сахарного тростника (название сверить)", "j": "Computers and Electronics in Agriculture 235: 110365", "d": "—", "dir": "Точечное опрыскивание", "s": "Сокращение гербицидов; переход к экологическим метрикам вместо точности детекции", "st": "Журнал"}, {"y": 2025, "r": "rob", "a": "Gatkal N.R. et al.", "t": "Review of UAVs for efficient agrochemical spray application", "j": "Int. J. Agric. & Biol. Eng. 18(1): 1–9", "d": "10.25165/j.ijabe.20251801.8979", "dir": "Дроны: опрыскивание", "s": "Обзор параметров опрыскивания дронами, форсунок, осаждения и сноса", "st": "Журнал"}, {"y": 2025, "r": "rob", "a": "Affonso F. et al.", "t": "CROW: A self-supervised crop row navigation algorithm for agricultural fields", "j": "Journal of Intelligent & Robotic Systems 111: 28", "d": "10.1007/s10846-025-02219-2", "dir": "Навигация под пологом", "s": "Самообучаемая навигация по рядам по данным лидара для разных культур", "st": "Журнал"}, {"y": 2025, "r": "rob", "a": "Авторы Crops", "t": "AI and robotics in agriculture: A systematic and quantitative review of research trends (2015–2025)", "j": "Crops 5(5): 75", "d": "10.3390/crops5050075", "dir": "Библиометрия", "s": ">10 тыс. публикаций; ~1200 в Scopus за 2024 год; мониторинговые роботы доминируют, мало полевой валидации", "st": "MDPI, Frontiers"}, {"y": 2025, "r": "rob", "a": "Авторы Robotics", "t": "Agricultural robotics: A technical review addressing challenges in sustainable crop production", "j": "Robotics 14(2): 9", "d": "10.3390/robotics14020009", "dir": "Обзор", "s": "Технический обзор роботов для устойчивого растениеводства", "st": "MDPI, Frontiers"}, {"y": 2025, "r": "rob", "a": "Mukhamediev R.I. et al.", "t": "Application of UAVs and machine learning methods for mapping and assessing salinity in agricultural fields in Southern Kazakhstan", "j": "Drones 9(12): 865", "d": "10.3390/drones9120865", "dir": "БПЛА-мониторинг, Казахстан", "s": "Картирование засоления полей Южного Казахстана по данным БПЛА и ML", "st": "MDPI, Frontiers"}, {"y": 2025, "r": "rob", "a": "Black K. et al. (Physical Intelligence)", "t": "π0.5: A vision-language-action model with open-world generalization", "j": "CoRL 2025 (arXiv:2504.16054)", "d": "arXiv:2504.16054", "dir": "Foundation models / VLA", "s": "Общая VLA-модель, ставшая базой для первых агро-VLA (HarvestFlex)", "st": "Конференция"}, {"y": 2025, "r": "rob", "a": "Firoozi R. et al.", "t": "Foundation models in robotics: Applications, challenges, and the future", "j": "International Journal of Robotics Research 44(5): 701–739", "d": "—", "dir": "Foundation models", "s": "Обзор foundation models в робототехнике", "st": "Журнал"}, {"y": 2025, "r": "rob", "a": "Авторы CEA 2025", "t": "Design, integration, and evaluation of a low-cost system for automatic apple picking and infield sorting", "j": "Computers and Electronics in Agriculture (2025)", "d": "—", "dir": "Сбор и сортировка", "s": "52,5% успешности, 4,3 с, 23,8% повреждений плодоножек; 91% успешности сортировки в поле", "st": "Журнал"}, {"y": 2025, "r": "rob", "a": "Авторы STOTEN", "t": "Pesticide spray drift and risk assessment using UAV sprayer and traditional electric knapsack sprayer", "j": "Science of the Total Environment (2025)", "d": "—", "dir": "Дроны: снос", "s": "DJI T50: снос 0–20 м против 0–4 м у ранца; концентрация пестицидов в воздухе в ~20 раз выше", "st": "Журнал"}, {"y": 2026, "r": "rob", "a": "Zhao Z., Wang S., Miao Z., Xiong Y.", "t": "HarvestFlex: Strawberry harvesting via vision-language-action policy adaptation in the wild", "j": "arXiv:2603.05982", "d": "arXiv:2603.05982", "dir": "VLA, сбор клубники", "s": "Первый перенос VLA на реальный сбор в теплице: π0.5 — 74%, 32,6 с на ягоду, 4,1% повреждений", "st": "Препринт"}, {"y": 2026, "r": "rob", "a": "Авторы arXiv", "t": "A modular dual-arm apple harvesting robot with enhanced field performance", "j": "arXiv:2606.14089", "d": "arXiv:2606.14089", "dir": "Сбор урожая (яблоки)", "s": "~250 деревьев, 1738 циклов: 80,0% на попытку, 7,53 с на руку", "st": "Препринт"}, {"y": 2026, "r": "rob", "a": "Авторы arXiv", "t": "HarvestPoint-ACT: Explicit target selection and harvest-point conditioning for robotic fruit harvesting under occlusion", "j": "arXiv:2608.18446", "d": "arXiv:2608.18446", "dir": "Сбор, обучение на демонстрациях", "s": "88% на макете кроны, 75% при самом сильном перекрытии", "st": "Препринт"}, {"y": 2026, "r": "rob", "a": "Авторы arXiv", "t": "Reinforcement learning for the full strawberry harvesting process: obstacle separation, detachment, and placement", "j": "arXiv:2607.14708", "d": "arXiv:2607.14708", "dir": "RL, sim-to-real", "s": "89,7% в симуляции и 82,0% в реальности при переносе без дообучения", "st": "Препринт"}, {"y": 2026, "r": "rob", "a": "Casini et al.", "t": "Библиометрия агроробототехники (название сверить)", "j": "Robotics 15(1): 24", "d": "10.3390/robotics15010024", "dir": "Библиометрия", "s": "3673 работы; резкий рост с 2019 года, >850 работ в год в 2020–2021 годах", "st": "MDPI, Frontiers"}, {"y": 2026, "r": "rob", "a": "Figorilli et al.", "t": "Bibliometric analysis on control architectures for robotics in agriculture", "j": "Robotics 15(4): 75", "d": "10.3390/robotics15040075", "dir": "Библиометрия", "s": "12 066 публикаций по архитектурам управления, пик — 3357 в 2020 году", "st": "MDPI, Frontiers"}, {"y": 2026, "r": "rob", "a": "Авторы AgriEngineering", "t": "Field validation of a laser-based robotic system for autonomous weed control in organic farming", "j": "AgriEngineering 8(4): 133", "d": "10.3390/agriengineering8040133", "dir": "Лазерная прополка", "s": "Сезонная эффективность лазерного прополочного робота в органическом овощеводстве (Германия, Нидерланды)", "st": "MDPI, Frontiers"}, {"y": 2026, "r": "rob", "a": "Авторы MAKE", "t": "Innovations in robots for weed and pest control: A systematic review of cutting-edge research", "j": "Machine Learning and Knowledge Extraction 8(2): 51", "d": "10.3390/make8020051", "dir": "Прополка и защита, обзор", "s": "83 исследования: доказательств общей пользы мало, преимущества заметнее для прополки и опрыскивания", "st": "MDPI, Frontiers"}, {"y": 2026, "r": "rob", "a": "Авторы CEA 2026", "t": "A review of visual navigation for agricultural robots in open fields and controlled environments", "j": "Computers and Electronics in Agriculture (2026)", "d": "—", "dir": "Навигация, обзор", "s": "Проблемы: надёжность в динамичной среде и вычисления в реальном времени", "st": "Журнал"}, {"y": 2026, "r": "rob", "a": "Авторы CEA 2026", "t": "Visual-language-guided task planning for horticultural robots", "j": "Computers and Electronics in Agriculture (2026)", "d": "—", "dir": "VLM-планирование", "s": "Планирование задач садовых роботов с помощью VLM; без масштабных полевых испытаний", "st": "Журнал"}, {"y": 2026, "r": "rob", "a": "Авторы JDS", "t": "Invited review: Assessing dairy cow agency in automatic milking systems", "j": "Journal of Dairy Science (2026)", "d": "—", "dir": "Доильные роботы", "s": "Повестка смещается к благополучию и «агентности» коров при автоматическом доении", "st": "Журнал"}, {"y": 2026, "r": "rob", "a": "Авторы Applied Fruit Science", "t": "Canopy-layer spray deposition and drift behavior in an almond orchard: UAVs vs air-assisted orchard sprayer", "j": "Applied Fruit Science", "d": "10.1007/s10341-026-02039-0", "dir": "Дроны: осаждение", "s": "Вентиляторный опрыскиватель — выше абсолютное покрытие; дроны T30/T40 эффективнее на литр раствора", "st": "Журнал"}, {"y": 2026, "r": "rob", "a": "Авторы (PubMed 42638482)", "t": "Field evaluation of spray drift exposure and phytotoxic effects on non-target crops from UAV and conventional sprayers", "j": "Рецензируемый журнал (2026)", "d": "PMID 42638482", "dir": "Дроны: снос", "s": "С инжекторной форсункой дрон давал меньший снос, чем штанговый и ранцевый опрыскиватели", "st": "Журнал"}, {"y": 2026, "r": "rob", "a": "Авторы JIRS", "t": "Certification systems and training facilities for enabling UAV deployment in Kazakhstan and the EAEU", "j": "Journal of Intelligent & Robotic Systems", "d": "10.1007/s10846-026-02394-w", "dir": "Регулирование БПЛА, Казахстан", "s": "В Казахстане нет лабораторий, аккредитованных по ISO/IEC 17025 для сертификации БПЛА", "st": "Журнал"}, {"y": 2026, "r": "rob", "a": "Авторы arXiv (FAPESP)", "t": "LeCropFollow: Latent space planning for navigation in unstructured crop fields", "j": "IEEE RA-L (принято, 2026); arXiv:2606.31941", "d": "arXiv:2606.31941", "dir": "Навигация под пологом", "s": "Навигация без GNSS под пологом за счёт планирования в латентном пространстве", "st": "Конференция"}, {"y": 2026, "r": "rob", "a": "Авторы arXiv", "t": "From vision to harvest: Benchmarking vision-language models for multi-arm robotic fruit harvesting", "j": "arXiv:2609.13606", "d": "arXiv:2609.13606", "dir": "VLM-бенчмарк", "s": "Первый бенчмарк VLM для многорукого сбора фруктов", "st": "Препринт"}];
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+function S(tag, a = {}, txt){ const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; }
+function H(html){ const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TR = {ai: ['AI', 'var(--tAI)'], rob: ['Robotics', 'var(--tRob)']};
+const trk = r => `<span class="chip trk"><i class="dot" style="background:${TR[r][1]}"></i>${TR[r][0]}</span>`;
+const ru = (v, d = 1) => v.toLocaleString('ru-RU', {minimumFractionDigits: d, maximumFractionDigits: d});
+function ticks(max, n = 4){ const raw = max / n, p = 10 ** Math.floor(Math.log10(raw)); const step = [1, 2, 2.5, 5, 10].map(s => s * p).find(s => s >= raw); const out = []; for (let v = 0; ; v += step){ out.push(+v.toFixed(6)); if (v >= max - 1e-9) break; } return out; }
+const colPath = (x, y, w, h, r = 4) => { r = Math.min(r, h, w / 2); return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`; };
+const barPath = (x, y, w, h, r = 4) => { r = Math.min(r, w, h / 2); return `M${x},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h - r}Q${x + w},${y + h} ${x + w - r},${y + h}H${x}Z`; };
+
+/* tooltip */
+const tip = $('#tip');
+document.addEventListener('pointerover', e => { const t = e.target.closest('[data-tip]'); if (!t) return; tip.innerHTML = t.getAttribute('data-tip'); tip.hidden = false; });
+document.addEventListener('pointermove', e => { if (tip.hidden) return; const w = tip.offsetWidth, h = tip.offsetHeight; let x = e.clientX + 14, y = e.clientY + 14; if (x + w > innerWidth - 8) x = e.clientX - w - 14; if (y + h > innerHeight - 8) y = e.clientY - h - 14; tip.style.left = x + 'px'; tip.style.top = y + 'px'; });
+document.addEventListener('pointerout', e => { if (e.target.closest('[data-tip]') && !e.relatedTarget?.closest?.('[data-tip]')) tip.hidden = true; });
+
+/* ---------- charts ---------- */
+function columns(host, {data, fmt, color = 'var(--accent)', W = 560, H = 230, onClick}){
+  const m = {t: 24, r: 8, b: 30, l: 40}, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const tk = ticks(Math.max(...data.map(d => d.v))), top = tk[tk.length - 1];
+  const svg = S('svg', {viewBox: `0 0 ${W} ${H}`, class: 'chart', role: 'img'});
+  tk.forEach(t => { const y = m.t + ih - ih * t / top; svg.append(S('line', {x1: m.l, x2: W - m.r, y1: y, y2: y, class: t ? 'grid' : 'base'}), S('text', {x: m.l - 8, y: y + 4, class: 'tick', 'text-anchor': 'end'}, fmt(t, true))); });
+  const band = iw / data.length, bw = Math.min(40, band * .5);
+  data.forEach((d, i) => {
+    const x = m.l + band * i + (band - bw) / 2, h = ih * d.v / top, y = m.t + ih - h;
+    const g = S('g', {'data-tip': d.tip || `<b>${d.k}</b>: ${fmt(d.v)}`});
+    g.append(S('rect', {x: m.l + band * i, y: m.t, width: band, height: ih, class: 'hit'}), S('path', {d: colPath(x, y, bw, h), fill: d.color || color}));
+    g.append(S('text', {x: x + bw / 2, y: y - 7, class: 'val', 'text-anchor': 'middle'}, fmt(d.v)));
+    g.append(S('text', {x: x + bw / 2, y: H - 10, 'text-anchor': 'middle'}, d.k));
+    if (onClick){ g.style.cursor = 'pointer'; g.addEventListener('click', () => onClick(d)); }
+    svg.append(g);
+  });
+  host.replaceChildren(svg);
+}
+
+function dotstrip(host, {data, band, W = 560}){
+  const rowH = 30, m = {t: 8, r: 64, b: 28, l: 150}, H = m.t + rowH * data.length + m.b, iw = W - m.l - m.r;
+  const tk = ticks(Math.max(...data.map(d => d.v))), top = tk[tk.length - 1], X = v => m.l + iw * v / top;
+  const svg = S('svg', {viewBox: `0 0 ${W} ${H}`, class: 'chart', role: 'img'});
+  if (band) svg.append(S('rect', {x: X(band[0]), y: m.t, width: X(band[1]) - X(band[0]), height: rowH * data.length, fill: 'var(--accent-soft)'}));
+  tk.forEach(t => svg.append(S('line', {x1: X(t), x2: X(t), y1: m.t, y2: H - m.b, class: t ? 'grid' : 'base'}), S('text', {x: X(t), y: H - 8, class: 'tick', 'text-anchor': 'middle'}, ru(t, 0))));
+  [...data].sort((a, b) => a.v - b.v).forEach((d, i) => {
+    const y = m.t + rowH * i + rowH / 2;
+    const g = S('g', {'data-tip': `<b>${d.k}</b><br>${ru(d.v, 2)} млрд ($, ${d.y})<br>прогноз: ${d.f}<br>CAGR ${d.c}`});
+    g.append(S('rect', {x: 0, y: y - rowH / 2, width: W, height: rowH, class: 'hit'}));
+    g.append(S('line', {x1: m.l, x2: X(d.v), y1: y, y2: y, stroke: 'var(--line)', 'stroke-width': 2}));
+    g.append(S('circle', {cx: X(d.v), cy: y, r: 6, fill: 'var(--accent)', stroke: 'var(--surface)', 'stroke-width': 2}));
+    g.append(S('text', {x: m.l - 12, y: y + 4, 'text-anchor': 'end'}, d.k));
+    g.append(S('text', {x: X(d.v) + 12, y: y + 4, class: 'val'}, ru(d.v, 2) + (d.y !== 2025 ? ` (${d.y})` : '')));
+    svg.append(g);
+  });
+  host.replaceChildren(svg);
+}
+
+function hbars(host, {data, max = 100, W = 560}){
+  const rowH = 34, m = {t: 4, r: 48, b: 4, l: 180}, H = m.t + rowH * data.length + m.b, iw = W - m.l - m.r;
+  const svg = S('svg', {viewBox: `0 0 ${W} ${H}`, class: 'chart', role: 'img'});
+  svg.append(S('line', {x1: m.l, x2: m.l, y1: m.t, y2: H - m.b, class: 'base'}));
+  data.forEach((d, i) => {
+    const y = m.t + rowH * i + 7, w = iw * d.v / max;
+    const g = S('g', {'data-tip': `<b>${d.k}</b>: ${d.v}%`});
+    g.append(S('rect', {x: 0, y: y - 7, width: W, height: rowH, class: 'hit'}), S('rect', {x: m.l, y, width: iw, height: 20, rx: 4, fill: 'var(--surface2)'}), S('path', {d: barPath(m.l, y, w, 20), fill: 'var(--accent)'}));
+    g.append(S('text', {x: m.l - 12, y: y + 14, 'text-anchor': 'end'}, d.k), S('text', {x: m.l + w + 8, y: y + 14, class: 'val'}, d.v + '%'));
+    svg.append(g);
+  });
+  host.replaceChildren(svg);
+}
+
+/* ---------- tabs ---------- */
+const TABS = [...document.querySelectorAll('nav.tabs button')];
+function show(id){
+  if (!document.getElementById('p-' + id)) id = 'overview';
+  TABS.forEach(b => b.setAttribute('aria-selected', b.dataset.tab === id));
+  document.querySelectorAll('section.pane').forEach(p => p.hidden = p.id !== 'p-' + id);
+  if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id);
+  window.scrollTo({top: 0});
+}
+TABS.forEach(b => b.addEventListener('click', () => show(b.dataset.tab)));
+addEventListener('hashchange', () => show(location.hash.slice(1)));
+
+/* ---------- market ---------- */
+const VC = [{k: '2021', v: 51.7, n: '+85%, пик, мегараунды в eGrocery'}, {k: '2022', v: 29.6, n: '−44%, растут климатические категории'}, {k: '2023', v: 15.6, n: '−49%, минимум за 6 лет'}, {k: '2024', v: 16.7, n: 'стабилизация'}, {k: '2025', v: 16.2, n: '−3%, upstream $9 млрд, долг 18,2%'}];
+columns($('#c-vc'), {data: VC.map(d => ({...d, tip: `<b>${d.k}</b>: $${ru(d.v)} млрд<br>${d.n}`})), fmt: (v, t) => t ? ru(v, 0) : ru(v)});
+columns($('#c-drone'), {data: [{k: '2023', v: 3.7}, {k: '2024', v: 10.3}, {k: '2025', v: 16.4, tip: '<b>2025</b>: 16,4 млн акров (+58,7%)<br>1 710 операторов с сертификатом FAA Part 137'}], fmt: (v, t) => t ? ru(v, 0) : ru(v)});
+dotstrip($('#c-mkt-ai'), {band: [2, 3], data: [
+  {k: 'Straits Research', v: 1.18, y: 2025, f: '$9,32 млрд к 2033', c: '20,2%'}, {k: 'Grand View Research', v: 1.91, y: 2023, f: 'до 2030', c: '25,5%'},
+  {k: 'Data Bridge', v: 2.08, y: 2025, f: '$10,49 млрд к 2032', c: '22,39%'}, {k: 'Mordor Intelligence', v: 2.43, y: 2025, f: '$8,39 млрд к 2031', c: '21,96%'},
+  {k: 'Precedence Research', v: 2.57, y: 2025, f: '$20,12 млрд к 2035', c: '22,85%'}, {k: 'Business Research Co.', v: 2.71, y: 2025, f: '$6,58 млрд к 2029', c: '24,8%'},
+  {k: 'Global Market Insights', v: 4.7, y: 2024, f: '$46,6 млрд к 2034', c: '26,3%'}, {k: 'Future Market Insights', v: 5.9, y: 2025, f: '$77,0 млрд к 2036', c: '26,3%'},
+  {k: 'Emergen Research', v: 5.92, y: 2025, f: '$57,44 млрд к 2035', c: '26,3%'}]});
+dotstrip($('#c-mkt-rob'), {data: [
+  {k: 'Polaris', v: 18.52, y: 2025, f: '$149,78 млрд к 2034', c: '26,1%'}, {k: 'MarketsandMarkets', v: 17.73, y: 2025, f: '$56,26 млрд к 2030', c: '26,0%'},
+  {k: 'Emergen Research', v: 14.38, y: 2025, f: '$53,46 млрд к 2035', c: '14,2%'}, {k: 'Research and Markets', v: 12.2, y: 2025, f: '$139,4 млрд к 2035', c: '24,8%'},
+  {k: 'IMARC', v: 12.0, y: 2025, f: '$41,3 млрд к 2034', c: '14,23%'}, {k: 'Expert Market Research', v: 8.41, y: 2025, f: '$39,40 млрд к 2035', c: '16,7%'},
+  {k: 'Fortune Business Insights', v: 8.13, y: 2025, f: '$37,41 млрд к 2034', c: '19,2%'}]});
+hbars($('#c-mck'), {data: [{k: 'Используют GenAI', v: 17}, {k: 'Считают надёжным', v: 6}, {k: 'Платят за GenAI', v: 4}]});
+
+const MAT = {
+  ai: [['Точное внесение', 4, 'Коммерческая, масштабируется', 'Deere See & Spray: 59% экономии гербицидов, >1 млн акров в 2024'], ['ДЗЗ и прогноз урожайности', 4, 'Зрелая аналитика', 'NASA/IBM Prithvi, Google AlphaEarth, KGS/Planet, Egistic'], ['Болезни и вредители', 4, 'Коммерческая', 'Farmer.Chat, Taranis, Intelinair AGMRI'], ['Роботы-прополщики', 3, 'Коммерческая в овощах', 'Carbon Robotics LaserWeeder, 15 стран'], ['Генеративный AI и LLM', 3, 'Быстрый рост', 'Farmer.Chat, Bayer E.L.Y., AGMRI AI Agent, AGRIVI AI Engage'], ['Орошение и вода', 3, 'Растущая', 'CropX; проекты Всемирного банка в Казахстане (>100 тыс. га)'], ['Животноводство (PLF)', 3, 'Растущая', 'ИСЖ Казахстана (>39 млн голов)'], ['Цепочки поставок и цены', 3, 'Растущая', 'Samunnati ($267 млн в 2025)'], ['Агрострахование и финтех', 3, 'Растущая', 'Погодный датасет Bayer за 40 лет; Qoldau'], ['Автономная техника', 2, 'Ранний коммерческий этап', 'Deere autonomy kit 2-го поколения, Carbon AutoTractor, Cognitive Agro Pilot'], ['Цифровые двойники и FM', 2, 'Ранний этап', 'Carbon LPM, Prithvi, AlphaEarth, TerraMind'], ['Климат, углерод, MRV', 2, 'Волатильная', 'Chestnut Carbon ($370 млн в 2025)', 1], ['Селекция и геномика', 1, 'R&D', 'Корпоративные R&D: Bayer, Corteva, Syngenta'], ['Вертикальные фермы', 0, 'Кризис', 'Банкротства Plenty, Bowery, AeroFarms; 14 банкротств CEA в 2025', 1]],
+  rob: [['Агродроны: опрыскивание, внесение, посев', 4, 'Зрелый, массовый', '>600 тыс. дронов DJI; США — 16,4 млн акров в 2025', 'Услуга в США — $13/акр; казахстанский дрон ~$20 тыс.'], ['Автопилоты и GNSS/RTK', 4, 'Зрелый, массовый', 'Стандарт на крупной технике', 'Cognitive Agro Pilot — $9 900–16 000'], ['Дроны-мониторинг', 4, 'Зрелый', '57 дронов мониторинга у фитосанитарной службы РК', 'Ценность — в аналитике'], ['Доильные роботы', 4, 'Зрелый', 'В Казахстане — десятки роботов', 'Импортный робот в РФ — 17–23 млн руб.'], ['Автоматическое орошение', 4, 'Зрелый', 'В РК >700 тыс. га водосберегающих технологий', 'Окупаемость определяют субсидии'], ['Послеуборочная сортировка', 4, 'Зрелый', 'Стандарт у крупных упаковщиков', 'Экономия труда и премия за калибр'], ['Точечное опрыскивание', 3, 'Ранняя массовая', 'See & Spray — >5 млн акров, >1000 машин', '$1–5 за акр только за сэкономленные акры'], ['Теплицы и CEA', 3, 'Средняя', 'Климат-контроль — стандарт; сбор — пилоты', 'HortiBot (перец) — 27 с на плод'], ['Автономные тракторы и ретрофит-киты', 2, 'Ранняя коммерциализация', 'Ограниченные серии; испытания в СКО', 'Высокие капвложения'], ['Лазерная и механическая прополка', 2, 'Ранняя коммерциализация', 'LaserWeeder в 15 странах', 'Carbon: >$100 млн выручки, не прибыльна'], ['Роботы-сборщики', 1, 'Пилоты', 'Единичные коммерческие пилоты', 'Неокупаемы вне высокой стоимости труда'], ['Рои малых роботов', 1, 'Экспериментальный', 'Единичные системы', 'Экономика не доказана']]
+};
+const meter = n => `<span class="meter" aria-hidden="true">${[1, 2, 3, 4].map(i => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</span>`;
+function renderMat(f){
+  const rows = [...MAT.ai.map(r => ({r: 'ai', n: r[0], m: r[1], lab: r[2], c: r[3], risk: r[4]})), ...MAT.rob.map(r => ({r: 'rob', n: r[0], m: r[1], lab: r[2], c: r[3] + '. ' + r[4]}))]
+    .filter(x => f === 'all' || x.r === f).sort((a, b) => b.m - a.m || a.r.localeCompare(b.r));
+  $('#t-mat').innerHTML = '<tr><th>Направление</th><th>Трек</th><th>Зрелость</th><th>Кейсы и экономика</th></tr>' + rows.map(x =>
+    `<tr><td><b>${esc(x.n)}</b></td><td>${trk(x.r)}</td><td style="white-space:nowrap">${meter(x.m)} <span class="${x.risk ? 'risk' : ''}" style="margin-left:8px">${x.risk ? '⚠ ' : ''}${esc(x.lab)}</span></td><td>${esc(x.c)}</td></tr>`).join('');
+}
+function seg(id, fn){ const el = $(id); el.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); fn(b.dataset.v); }); }
+renderMat('all'); seg('#seg-mat', renderMat);
+
+/* ---------- evidence ---------- */
+const LV = {A: 'Операционное использование или многолетняя независимая валидация', B: 'Многосайтовые испытания, пространственная или временная проверка', C: 'Один участок или сезон, случайная кросс-валидация, лаборатория', D: 'Препринт, бенчмарк без поля, симуляция'};
+const EV = {
+  ai: [['ДЗЗ: картирование и урожай', 'A / B', 'Gradient boosting, LSTM/Transformer, SAR + оптика', 'Potapov 2022; WorldCereal 2023; CY-Bench 2026; van Klompenburg 2020', 'Временной перенос урожайных моделей'], ['AI-погода для агро', 'A / D', 'GNN и трансформеры по ERA5, диффузионные ансамбли', 'GraphCast 2023; GenCast, NeuralGCM, Aurora', 'Нет цепочки «прогноз → урожай»'], ['Фенотипирование', 'B', 'Детекция и подсчёт органов, 3D, UAV', 'GWHD 2020/2021; Annu Rev Plant Biol 2024', 'Перенос между генотипами и площадками'], ['Гибрид ML + процессные модели', 'B', 'Суррогаты, физические ограничения, ассимиляция', 'KGML-ag-Carbon (Nat Commun 2024)', 'Мало внешних проверок'], ['Геномная селекция и AI для биологии', 'B / D–B', 'GBLUP против DL, ДНК-LM, белковый дизайн', 'AgroNT 2024; PlantCaduceus 2025; Montesinos-López 2024; Crossa 2025', 'DL редко стабильно лучше GBLUP'], ['Почва, углерод, MRV', 'B / C', 'RF/QRF, DSM с неопределённостью, KGML', 'SoilGrids 2.0 (2021); Heuvelink et al. 2021', 'Изменение SOC ниже шума'], ['CV: болезни, вредители, сорняки', 'C', 'YOLO, ViT, self-supervised, VLM zero-shot', 'PlantVillage (критика Noyan 2022), AgroBench (ICCV 2025)', 'Лабораторные фото проваливаются в поле'], ['Животноводство (PLF)', 'C–B', 'YOLO + трекинг, pose estimation, акселерометры', 'Обзоры в COMPAG; J Dairy Sci', 'Шумные эталоны, перенос между фермами'], ['Орошение и вода', 'C', 'ML-ET, влажность почвы, RL-полив', 'WorldCereal (слой орошения)', 'Мало полевых экспериментов'], ['XAI, доменный сдвиг, federated', 'C–D', 'SHAP, доменная адаптация, TabPFN, FL', 'TabPFN (Nature 2025)', 'XAI не равно причинности'], ['Geospatial и агро FM', 'D→B', 'MAE и контрастивное предобучение, эмбеддинги', 'Presto, Prithvi, SatMAE, AlphaEarth; Harvesting AlphaEarth 2026', 'Нестабильный выигрыш над бейзлайнами'], ['LLM, VLM, агенты', 'D', 'RAG, дообучение, мультимодальные ассистенты', 'Tzachor 2023 (Nature Food); AgriEval, AgReason, AgroBench', 'Нет полевых RCT, галлюцинации']],
+  rob: [['Доильные роботы', 'A', '>8000 ферм с автоматическим доением ещё к 2010 году', 'Hovinen & Pyörälä 2011; скоупинг-обзор JDS 2023'], ['Автономные тракторы', 'A / C–D', 'Автовождение — уровень A. Экономика автономии моделируется, а не измеряется', 'Lowenberg-DeBoer 2021; Lagnelöv 2021'], ['Лазерная прополка', 'B', '≥97% снижения биомассы сорняков, угнетение культуры ≤1%', 'Sosnoskie et al. 2025 (Pest Manag Sci) — на машине производителя'], ['Дроны: снос и осаждение', 'B', 'Снос падает на порядок к 12 м по ветру', 'Butler-Ellis 2025; Ahrens 2025 (ISO 22866)'], ['Навигация под пологом', 'B', 'CropFollow: 485 м на вмешательство против 286 м у лидара', 'Sivakumar et al. 2021 (RSS)'], ['Сбор яблок', 'B/C', '80,7% и 79,7%, 5,97 с на попытку, два сада в Мичигане', 'Zhang 2024; Zhu 2025'], ['Механическая и точечная прополка', 'B/C', 'Гибель сорняков 92,8% (кукуруза), повреждения <6%', 'Chandel 2021; Rahimi Azghadi 2025'], ['Фенотипирование и мониторинг', 'B/C', 'TerraSentia: подсчёт растений в поле', 'Illinois, CMU Robotanist'], ['Послеуборочная сортировка', 'B/C', '91% успешности сортировки в поле', 'CEA 2025'], ['Сбор клубники', 'C', '83% «доступных» ягод; 71,7% в открытом грунте', 'Parsa 2024; Xiong 2020'], ['Перец и томаты в теплице', 'C', 'SWEEPER: 61% в лучших условиях, 18% в обычных, 24 с', 'Arad et al. 2020'], ['Дроны против саранчи', 'C', '97,5% гибели личинок за 17 дней (Казахстан)', 'Azhbenov et al. 2024'], ['Манипуляция и захваты', 'C', 'Вакуумные захваты для яблок стали стандартом', 'MSU / USDA'], ['Теплицы / CEA', 'C', 'Успешность около 66% в среднем по прототипам', 'Kootstra 2021 (цифра совпадает с Bac 2014)'], ['Безопасность и HRI', 'C/D', 'Всего 62 статьи за 10 лет, около 80% — о сенсорах', 'Aby & Issa 2023; Benos 2020'], ['Экономика', 'C/D', 'Все 18 исследований нашли прибыльные сценарии, но на данных прототипов', 'Lowenberg-DeBoer 2020'], ['Многороботные системы и рои', 'D/C', 'В основном моделирование', 'Agbots 2.0 (RSS 2020)'], ['Foundation models / VLA', 'D', 'HarvestFlex π0.5: 74%, 32,6 с на ягоду (препринт)', 'Black et al. 2025; HarvestFlex 2026']]
+};
+const EVALL = [...EV.ai.map(r => ({r: 'ai', n: r[0], lv: r[1], body: `<p><b>Методы:</b> ${esc(r[2])}</p><p><b>Главное ограничение:</b> ${esc(r[4])}</p><p class="src">${esc(r[3])}</p>`})),
+  ...EV.rob.map(r => ({r: 'rob', n: r[0], lv: r[1], body: `<p>${esc(r[2])}</p><p class="src">${esc(r[3])}</p>`}))];
+function renderEv(f){
+  $('#board').replaceChildren(...['A', 'B', 'C', 'D'].map(L => {
+    const items = EVALL.filter(x => x.lv[0] === L && (f === 'all' || x.r === f));
+    const col = H(`<div class="col"><div class="colhead"><span class="chip ev ev-${L}">${L}</span><p>${LV[L]}</p></div><div class="count" style="font-size:12px;color:var(--muted)">${items.length} ${items.length === 1 ? 'направление' : items.length < 5 && items.length ? 'направления' : 'направлений'}</div></div>`);
+    items.forEach(x => {
+      const b = H(`<button class="ecard" aria-expanded="false"><div class="t"><span>${esc(x.n)}</span>${x.lv !== L ? `<span class="chip ev ev-${L}" style="font-size:11px">${esc(x.lv)}</span>` : ''}</div><div class="tk">${trk(x.r)}</div><div class="d">${x.body}</div></button>`);
+      b.addEventListener('click', () => b.setAttribute('aria-expanded', b.getAttribute('aria-expanded') !== 'true'));
+      col.append(b);
+    });
+    if (!items.length) col.append(H('<p class="sub">Нет направлений</p>'));
+    return col;
+  }));
+}
+renderEv('all'); seg('#seg-ev', renderEv);
+
+/* ---------- timeline ---------- */
+const TL = [
+  [2020, null, 'Цифровизация и удалённый мониторинг. Капитал уходит в доставку продуктов и eGrocery.', 'База для роста агродронов. В Казахстане утверждены правила использования беспилотных авиасистем.', 'Ploton et al.: случайная кросс-валидация скрывает слабую предсказательную силу карт.', 'SWEEPER: культуру нужно адаптировать под робота.', 'COVID-19'],
+  [2021, 51.7, 'Пик венчура (+85%). Deere запускает See & Spray. Egistic становится поставщиком снимков Planet.', '«Брянсксельмаш» серийно ставит Cognitive Agro Pilot. Узбекистан разрешает агродроны до 100 кг.', 'SoilGrids 2.0, CropHarvest. Агро-треки NeurIPS Datasets & Benchmarks.', 'CropFollow: навигация под пологом по одной камере.', 'Дешёвые деньги'],
+  [2022, 29.6, 'Автономный трактор Deere на CES. Иск против Deere о праве на ремонт.', 'Cognitive Pilot и BHK Agro: 100 комплектов в год для комбайнов CNH в Казахстане.', 'От новых архитектур к предобучению (SatMAE). Критика датасета PlantVillage.', 'Общие метрики сборщиков: успешность, время цикла, повреждения.', 'Война в Украине, рост цен на удобрения'],
+  [2023, 15.6, 'Farmer.Chat, NASA/IBM Prithvi, LLM API в Azure. Банкротства AeroFarms и AppHarvest.', 'Carbon Robotics привлекает $30 млн. CNH инвестирует в Advanced Farm. В США дронами обработано 3,7 млн акров.', 'GraphCast: AI-прогноз погоды догоняет численные модели.', 'Снос от дронов становится предметом регуляторных исследований.', 'Высокие ставки'],
+  [2024, 16.7, 'СП PTx Trimble (~$2 млрд), пилот Bayer E.L.Y., Monarch привлекает $133 млн, Bowery закрывается.', 'Carbon Robotics привлекает $70 млн. ISO 18497:2024. Блокировка DJI в США. Реформа субсидий РК в пользу местной техники.', 'Гибриды ML и процессных моделей выходят в журналах уровня Nature (KGML).', 'Испытания сборщиков в коммерческих садах.', 'Снижение цен на зерно'],
+  [2025, 16.2, 'Иск FTC к Deere, autonomy kit второго поколения, Chapter 11 у Plenty, Carbon LPM, AlphaEarth.', 'CNH покупает Advanced Farm. Сборка John Deere в Костанае. See & Spray — 5 млн акров. Продажи дронов в США −59%.', 'Готовые эмбеддинги Земли (AlphaEarth) и табличная FM TabPFN.', 'Независимые проверки коммерческих машин: лазерная прополка, снос по ISO 22866.', 'Тарифы, климатические удары'],
+  [2026, null, 'Соглашение FTC и Deere. 17% фермеров с GenAI. Monarch закрывается. Казахстан — Год цифровизации и AI.', 'Carbon Robotics >$100 млн выручки. 600 тыс. дронов DJI. Завод Avatar в Туркестане. Испытания автономных тракторов в СКО.', 'От SOTA-метрик к воспроизводимости: CY-Bench, независимая критика FM.', 'Агро-VLA на реальной культуре, но в 4–5 раз медленнее.', 'Ормузский пролив, Эль-Ниньо (по McKinsey)']
+];
+$('#tl').replaceChildren(...TL.map(([y, vc, ai, rob, sa, sr, ext]) => H(`<div class="yr" id="y${y}"><div><div class="y">${y}</div><div class="vc">${vc ? '$' + ru(vc) + ' млрд венчура' : 'венчур н/д'}</div><div class="ext">${esc(ext)}</div></div>
+  <div class="lanes"><div class="lane"><span class="eyebrow">Рынок и AI</span>${esc(ai)}</div><div class="lane sci"><span class="eyebrow">Наука: AI</span>${esc(sa)}</div>
+  <div class="lane"><span class="eyebrow">Робототехника</span>${esc(rob)}</div><div class="lane sci"><span class="eyebrow">Наука: роботы</span>${esc(sr)}</div></div></div>`)));
+
+/* overview mini */
+(() => {
+  const g = H('<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden"></div>');
+  const heads = {2020: 'COVID и «цифра по необходимости»', 2021: 'Пиковый пузырь', 2022: 'Война, инфляция, поворот к климату', 2023: 'Генеративный AI и «зима» стартапов', 2024: 'Корпорации забирают AI себе', 2025: 'Физический AI и отрезвление', 2026: 'Агентный AI и госповестки'};
+  TL.forEach(([y, vc]) => { const b = H(`<button style="all:unset;cursor:pointer;background:var(--surface);padding:12px 14px;display:block"><div style="font:600 20px var(--f-disp)">${y}</div><div style="font-size:13px;color:var(--ink2);margin-top:4px;line-height:1.35">${heads[y]}</div><div class="count" style="margin-top:6px;font-size:12px;color:var(--muted)">${vc ? '$' + ru(vc) + ' млрд' : '—'}</div></button>`); b.addEventListener('click', () => { show('timeline'); document.getElementById('y' + y).scrollIntoView({block: 'start'}); scrollBy(0, -70); }); g.append(b); });
+  $('#ov-mini').append(g);
+})();
+
+/* ---------- papers ---------- */
+const GROUPS = [['Прополка', /[Пп]ропол/], ['Сбор урожая', /Сбор|RL, sim|Восприятие для сбора|захват|^Робототехника$/], ['Дроны и БПЛА', /Дрон|БПЛА|саранч/], ['Навигация', /Навигац/], ['Обрезка', /Обрезк/], ['Безопасность и экономика', /Безопас|Экономик|человек/], ['LLM, VLM, VLA', /LLM|VLM|VLA, сбор/], ['Foundation models', /Foundation/], ['ДЗЗ и урожай', /ДЗЗ|Датасет \/ картирование/], ['Погода и климат', /Погода/], ['Геномика и селекция', /Геномика/], ['Почва, углерод, гибриды', /Почва|Гибрид/], ['Фенотипирование и CV', /Фенотип|^CV/], ['Животноводство', /Животн|Доильн/], ['Валидация и методология', /Валидация|Библиометрия|Этика/], ['Обзоры и прочее', /./]];
+const STATUS = [['Журнал', 'var(--s1)'], ['Конференция', 'var(--s2)'], ['Препринт', 'var(--s3)'], ['MDPI / Frontiers', 'var(--s4)']];
+const KZRE = /Казахстан|Центральн|, ЦА|Kazakhstan|Central Asia/;
+PAPERS.forEach(p => {
+  p.g = GROUPS.find(([, re]) => re.test(p.dir))[0];
+  p.st = p.st.startsWith('MDPI') ? 'MDPI / Frontiers' : p.st;
+  p.kz = KZRE.test(p.t + p.dir + p.s);
+  p.v = /сверить/.test(p.a + p.t + p.j + p.d);
+  p.anon = /^(Авторы|Survey authors)/.test(p.a);
+  const d = p.d.replace(/\s*\(сверить\)/, '').trim();
+  let m;
+  p.url = (m = d.match(/^(10\.\S+)/)) ? 'https://doi.org/' + m[1] : (m = d.match(/arXiv[: ]?(\d{4}\.\d{4,5})/)) ? 'https://arxiv.org/abs/' + m[1] : (m = d.match(/PMID (\d+)/)) ? 'https://pubmed.ncbi.nlm.nih.gov/' + m[1] + '/' : (m = d.match(/PMC(\d+)/)) ? 'https://pmc.ncbi.nlm.nih.gov/articles/PMC' + m[1] + '/' : '';
+});
+const YEARS = [2020, 2021, 2022, 2023, 2024, 2025, 2026];
+const fill = (sel, vals) => sel.append(...vals.map(v => new Option(v, v)));
+fill($('#f-y'), YEARS); fill($('#f-g'), GROUPS.map(g => g[0]).filter(g => PAPERS.some(p => p.g === g))); fill($('#f-s'), STATUS.map(s => s[0]));
+let colorBy = 'st';
+const series = () => colorBy === 'st' ? STATUS.map(([k, c]) => [k, c, p => p.st === k]) : [['AI', 'var(--tAI)', p => p.r === 'ai'], ['Robotics', 'var(--tRob)', p => p.r === 'rob']];
+const F = ['q', 'r', 'y', 'g', 's', 'kz', 'v'].reduce((o, k) => (o[k] = $('#f-' + k), o), {});
+function filtered(skipYear){
+  const q = F.q.value.trim().toLowerCase();
+  return PAPERS.filter(p => (!F.r.value || p.r === F.r.value) && (skipYear || !F.y.value || p.y == F.y.value) && (!F.g.value || p.g === F.g.value) && (!F.s.value || p.st === F.s.value) && (!F.kz.checked || p.kz) && (!F.v.checked || p.v) && (!q || (p.a + ' ' + p.t + ' ' + p.j + ' ' + p.s + ' ' + p.dir).toLowerCase().includes(q)));
+}
+function stacked(host, rows){
+  const W = 760, H = 220, m = {t: 22, r: 8, b: 30, l: 34}, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const tot = YEARS.map(y => rows.filter(p => p.y === y).length), tk = ticks(Math.max(4, ...tot)), top = tk[tk.length - 1];
+  const svg = S('svg', {viewBox: `0 0 ${W} ${H}`, class: 'chart', role: 'img', 'aria-label': 'Статьи по годам и статусу'});
+  tk.forEach(t => { const y = m.t + ih - ih * t / top; svg.append(S('line', {x1: m.l, x2: W - m.r, y1: y, y2: y, class: t ? 'grid' : 'base'}), S('text', {x: m.l - 8, y: y + 4, class: 'tick', 'text-anchor': 'end'}, t)); });
+  const band = iw / YEARS.length, bw = Math.min(44, band * .5);
+  YEARS.forEach((yr, i) => {
+    const x = m.l + band * i + (band - bw) / 2, sel = F.y.value == yr;
+    const SER = series(), counts = SER.map(([, , fn]) => rows.filter(p => p.y === yr && fn(p)).length);
+    const g = S('g', {'data-tip': `<b>${yr}</b>: ${tot[i]} работ<br>` + SER.map(([k], j) => `${k}: ${counts[j]}`).join('<br>') + '<br><i>клик — фильтр по году</i>', tabindex: 0, role: 'button', 'aria-label': `${yr}: ${tot[i]} работ`});
+    g.style.cursor = 'pointer';
+    g.append(S('rect', {x: m.l + band * i, y: m.t, width: band, height: ih, class: 'hit', fill: sel ? 'var(--accent-soft)' : 'transparent'}));
+    let y0 = m.t + ih; const nz = counts.map((c, j) => [c, j]).filter(([c]) => c);
+    nz.forEach(([c, j], idx) => { const h = ih * c / top, last = idx === nz.length - 1, gap = idx ? 2 : 0; const yy = y0 - h; g.append(last ? S('path', {d: colPath(x, yy + gap, bw, Math.max(0, h - gap)), fill: SER[j][1]}) : S('rect', {x, y: yy + gap, width: bw, height: Math.max(0, h - gap), fill: SER[j][1]})); y0 = yy; });
+    if (tot[i]) g.append(S('text', {x: x + bw / 2, y: y0 - 7, class: 'val', 'text-anchor': 'middle'}, tot[i]));
+    g.append(S('text', {x: x + bw / 2, y: H - 10, 'text-anchor': 'middle', style: sel ? 'font-weight:600;fill:var(--ink)' : ''}, yr));
+    const act = () => { F.y.value = sel ? '' : yr; renderPapers(); };
+    g.addEventListener('click', act); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); act(); } });
+    svg.append(g);
+  });
+  host.replaceChildren(svg);
+}
+function renderPapers(){
+  const rows = filtered(false);
+  stacked($('#c-papers'), filtered(true));
+  $('#lg-papers').innerHTML = series().map(([k, c]) => `<span><i style="background:${c}"></i>${k}</span>`).join('');
+  $('#p-count').textContent = `${rows.length} из ${PAPERS.length}`;
+  const stc = Object.fromEntries(STATUS);
+  $('#t-papers').innerHTML = '<tr><th>Год</th><th>Работа</th><th>Тема</th><th>Статус</th></tr>' + (rows.length ? rows.map(p => `<tr>
+    <td class="num">${p.y}</td>
+    <td style="min-width:320px"><div class="ptitle">${p.url ? `<a href="${p.url}" target="_blank" rel="noopener">${esc(p.t)}</a>` : esc(p.t)}</div>
+      <div class="pmeta">${esc(p.a)} · ${esc(p.j)}${p.v ? ' · <span class="verify">сверить</span>' : ''}</div><div class="pgist">${esc(p.s)}</div></td>
+    <td style="min-width:150px"><div>${esc(p.g)}</div><div style="margin-top:6px">${trk(p.r)}</div>${p.kz ? '<div style="margin-top:6px"><span class="chip kz">КЗ / ЦА</span></div>' : ''}</td>
+    <td><span class="chip"><i class="dot" style="background:${stc[p.st]}"></i>${p.st}</span></td></tr>`).join('') : '<tr><td colspan="4" style="padding:24px;color:var(--muted)">По этим фильтрам ничего не найдено. Нажмите «Сбросить».</td></tr>');
+}
+Object.values(F).forEach(el => el.addEventListener(el.type === 'search' ? 'input' : 'change', renderPapers));
+$('#f-reset').addEventListener('click', () => { Object.values(F).forEach(el => el.type === 'checkbox' ? el.checked = false : el.value = ''); renderPapers(); });
+seg('#seg-pc', v => { colorBy = v; renderPapers(); });
+renderPapers();
+
+/* ---------- lab vs field ---------- */
+(() => {
+  const D = [
+    {k: 'Болезни по фото (PlantVillage)', r: 'ai', a: 99, b: 31, la: 'свой датасет', lb: 'другие датасеты', src: 'Noyan 2022, препринт'},
+    {k: 'Сбор перца, SWEEPER', r: 'rob', a: 61, b: 18, la: 'лучшие условия', lb: 'обычная теплица', src: 'Arad et al. 2020'},
+    {k: 'Урожай пшеницы, Казахстан (R²)', r: 'ai', a: 64.6, b: 41.3, la: 'пространственная CV', lb: 'временная CV', src: 'Alpysbay et al. 2026', r2: 1},
+    {k: 'Сбор яблок, MSU', r: 'rob', a: 82.4, b: 65.2, la: 'молодой сад', lb: 'старый густой сад', src: 'Zhang et al. 2024'},
+    {k: 'Сбор при перекрытии, HarvestPoint-ACT', r: 'rob', a: 88, b: 75, la: 'макет кроны', lb: 'сильное перекрытие', src: 'препринт 2026'},
+    {k: 'Сбор яблок, MARS', r: 'rob', a: 70.8, b: 62.8, la: 'хорошая видимость', lb: 'без упрощения кроны', src: 'Au et al. 2023'},
+    {k: 'Клубника: RL из симуляции', r: 'rob', a: 89.7, b: 82.0, la: 'симуляция', lb: 'реальность', src: 'препринт 2026'}
+  ];
+  const W = 760, rowH = 46, m = {t: 8, r: 70, b: 28, l: 270}, H = m.t + rowH * D.length + m.b, iw = W - m.l - m.r, X = v => m.l + iw * v / 100;
+  const fv = (d, v) => d.r2 ? ru(v / 100, 3) : ru(v, v % 1 ? 1 : 0) + '%';
+  const svg = S('svg', {viewBox: `0 0 ${W} ${H}`, class: 'chart', role: 'img', 'aria-label': 'Лучшие условия против реальных'});
+  [0, 20, 40, 60, 80, 100].forEach(t => svg.append(S('line', {x1: X(t), x2: X(t), y1: m.t, y2: H - m.b, class: t ? 'grid' : 'base'}), S('text', {x: X(t), y: H - 8, class: 'tick', 'text-anchor': 'middle'}, t)));
+  D.forEach((d, i) => {
+    const y = m.t + rowH * i + rowH / 2;
+    const g = S('g', {'data-tip': `<b>${d.k}</b><br>${d.la}: ${fv(d, d.a)}<br>${d.lb}: ${fv(d, d.b)}<br>${d.src}`});
+    g.append(S('rect', {x: 0, y: y - rowH / 2, width: W, height: rowH, class: 'hit'}));
+    g.append(S('circle', {cx: 8, cy: y - 5, r: 4, fill: TR[d.r][1]}));
+    g.append(S('text', {x: 20, y: y - 1, style: 'fill:var(--ink);font-weight:500'}, d.k), S('text', {x: 20, y: y + 15, style: 'font-size:11px;fill:var(--muted)'}, `${d.la} → ${d.lb}`));
+    g.append(S('line', {x1: X(d.b), x2: X(d.a), y1: y, y2: y, stroke: 'var(--axis)', 'stroke-width': 2}));
+    g.append(S('circle', {cx: X(d.a), cy: y, r: 6, fill: 'var(--muted)', stroke: 'var(--surface)', 'stroke-width': 2}));
+    g.append(S('circle', {cx: X(d.b), cy: y, r: 6, fill: 'var(--accent)', stroke: 'var(--surface)', 'stroke-width': 2}));
+    g.append(S('text', {x: X(d.b) - 10, y: y + 4, 'text-anchor': 'end', style: 'font-size:11px'}, fv(d, d.b)));
+    g.append(S('text', {x: W - 4, y: y + 4, 'text-anchor': 'end', class: 'val'}, d.r2 ? '−' + ru((d.a - d.b) / 100, 2) : '−' + ru(d.a - d.b, 0) + ' п.п.'));
+    svg.append(g);
+  });
+  $('#c-dumb').append(svg);
+  $('#lg-dumb').innerHTML = '<span><i style="background:var(--muted);border-radius:50%"></i>Лучшие условия или лабораторная проверка</span><span><i style="background:var(--accent);border-radius:50%"></i>Реальные условия или честная проверка</span><span><i style="background:var(--tAI);border-radius:50%"></i>AI</span><span><i style="background:var(--tRob);border-radius:50%"></i>Robotics</span>';
+})();
+
+/* ---------- robots scatter ---------- */
+const CROPS = [['Яблоки', 'var(--s1)'], ['Клубника', 'var(--s2)'], ['Перец', 'var(--s3)']];
+const FIELD = [
+  {n: 'Zhang et al. 2024, молодой сад', c: 0, x: 6, y: 82.4, d: 'н/д', u: '2 сада, США', lv: 'B/C'},
+  {n: 'Zhang et al. 2024, старый густой сад', c: 0, x: 6, y: 65.2, d: 'н/д', u: '2 сада, США', lv: 'B/C'},
+  {n: 'Zhu et al. 2025, две руки', c: 0, x: 5.97, y: 80.7, d: 'н/д', u: '2 коммерческих сада, Мичиган', lv: 'B/C'},
+  {n: 'Модульный сборщик (препринт)', c: 0, x: 7.53, y: 80.0, d: 'н/д', u: '~250 деревьев, 1 738 циклов', lv: 'D'},
+  {n: 'MARS (Monash), без упрощения кроны', c: 0, x: 9.18, y: 62.8, d: 'н/д', u: 'сезоны 2021–2022', lv: 'C'},
+  {n: 'Малобюджетный сборщик 2025', c: 0, x: 4.3, y: 52.5, d: '23,8% плодоножек', u: 'шпиндельный сад', lv: 'C'},
+  {n: 'Xiong et al. 2020', c: 1, x: 5.35, x0: 4.6, x1: 6.1, y: 73.5, y0: 50, y1: 97.1, d: 'н/д', u: 'тоннели', lv: 'C'},
+  {n: 'HarvestFlex, VLA π0.5 (препринт)', c: 1, x: 32.6, y: 74, d: '4,1%', u: 'теплица', lv: 'D'},
+  {n: 'SWEEPER, лучшие условия', c: 2, x: 24, y: 61, d: 'н/д', u: 'коммерческая теплица, 262 плода', lv: 'C'},
+  {n: 'SWEEPER, обычные условия', c: 2, x: 24, y: 18, d: 'н/д', u: 'коммерческая теплица, 262 плода', lv: 'C'},
+  {n: 'Среднее по прототипам (Bac 2014 / Kootstra 2021)', c: -1, x: 33, y: 66, d: '—', u: 'обзор', lv: 'обзор'}
+];
+(() => {
+  const W = 760, H = 380, m = {t: 16, r: 20, b: 44, l: 48}, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const X = v => m.l + iw * v / 35, Y = v => m.t + ih - ih * v / 100;
+  const svg = S('svg', {viewBox: `0 0 ${W} ${H}`, class: 'chart', role: 'img', 'aria-label': 'Успешность и время цикла роботов-сборщиков'});
+  svg.append(S('rect', {x: X(4), y: Y(90), width: X(8) - X(4), height: Y(75) - Y(90), fill: 'var(--accent-soft)', rx: 6}));
+  svg.append(S('text', {x: X(8) + 8, y: Y(88), style: 'font-size:11px;fill:var(--accent)'}, 'плато ~80% при 6–8 с'));
+  [0, 20, 40, 60, 80, 100].forEach(t => svg.append(S('line', {x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), class: t ? 'grid' : 'base'}), S('text', {x: m.l - 8, y: Y(t) + 4, class: 'tick', 'text-anchor': 'end'}, t + '%')));
+  [0, 5, 10, 15, 20, 25, 30, 35].forEach(t => svg.append(S('text', {x: X(t), y: H - 24, class: 'tick', 'text-anchor': 'middle'}, t)));
+  svg.append(S('text', {x: m.l + iw / 2, y: H - 4, 'text-anchor': 'middle', style: 'fill:var(--muted);font-size:12px'}, 'время цикла, секунд на плод'));
+  const lab = {'SWEEPER, обычные условия': ['SWEEPER, обычные', 10, 4], 'HarvestFlex, VLA π0.5 (препринт)': ['VLA π0.5', -12, 4, 'end'], 'Малобюджетный сборщик 2025': ['малобюджетный', 10, 4], 'Среднее по прототипам (Bac 2014 / Kootstra 2021)': ['среднее по прототипам', -12, 4, 'end'], 'SWEEPER, лучшие условия': ['SWEEPER, лучшие', -12, 4, 'end']};
+  FIELD.forEach(p => {
+    const col = p.c < 0 ? 'var(--muted)' : CROPS[p.c][1];
+    const g = S('g', {'data-tip': `<b>${p.n}</b><br>успешность ${p.y0 ? p.y0 + '–' + ru(p.y1) : ru(p.y)}%<br>цикл ${p.x0 ? p.x0 + '–' + p.x1 : ru(p.x, p.x % 1 ? 2 : 0)} с<br>${p.u}<br>уровень ${p.lv}`});
+    g.append(S('circle', {cx: X(p.x), cy: Y(p.y), r: 14, class: 'hit'}));
+    if (p.y0) g.append(S('line', {x1: X(p.x), x2: X(p.x), y1: Y(p.y0), y2: Y(p.y1), stroke: col, 'stroke-width': 2, 'stroke-linecap': 'round'}), S('line', {x1: X(p.x0), x2: X(p.x1), y1: Y(p.y), y2: Y(p.y), stroke: col, 'stroke-width': 2, 'stroke-linecap': 'round'}));
+    g.append(S('circle', {cx: X(p.x), cy: Y(p.y), r: 6, fill: col, stroke: 'var(--surface)', 'stroke-width': 2}));
+    const l = lab[p.n]; if (l) g.append(S('text', {x: X(p.x) + l[1], y: Y(p.y) + l[2], 'text-anchor': l[3] || 'start', style: 'font-size:11.5px'}, l[0]));
+    svg.append(g);
+  });
+  $('#c-scatter').append(svg);
+  $('#lg-scatter').innerHTML = CROPS.map(([k, c]) => `<span><i style="background:${c};border-radius:50%"></i>${k}</span>`).join('') + '<span><i style="background:var(--muted);border-radius:50%"></i>Среднее по обзору</span>';
+  $('#t-field').innerHTML = '<tr><th>Система</th><th>Культура</th><th>Успешность</th><th>Цикл, с</th><th>Повреждения</th><th>Условия</th><th>Уровень</th></tr>' + FIELD.map(p => `<tr><td><b>${esc(p.n)}</b></td><td>${p.c < 0 ? '—' : CROPS[p.c][0]}</td><td class="num">${p.y0 ? p.y0 + '–' + ru(p.y1) : ru(p.y)}%</td><td class="num">${p.x0 ? p.x0 + '–' + p.x1 : ru(p.x, p.x % 1 ? 2 : 0)}</td><td>${p.d}</td><td>${esc(p.u)}</td><td><span class="chip ev ev-${p.lv[0] in LV ? p.lv[0] : 'D'}">${p.lv}</span></td></tr>`).join('')
+    + '<tr><td><b>Sosnoskie et al. 2025</b></td><td>Лазерная прополка</td><td class="num">−≥97% сорняков</td><td>несколько проходов</td><td>угнетение ≤1%</td><td>3 испытания</td><td><span class="chip ev ev-B">B</span></td></tr><tr><td><b>Azhbenov et al. 2024</b></td><td>Дроны против саранчи</td><td class="num">97,5% за 17 дней</td><td>делянки 1 га</td><td>н/д</td><td>4 области Казахстана</td><td><span class="chip ev ev-C">C</span></td></tr>';
+})();
+
+/* ---------- KZ ---------- */
+const AG = [
+  [1, 'KZ-Wheat-Bench: открытый бенчмарк урожая пшеницы', 'ai', 'низкая', 'высокий', 'Пространственное и временное разбиение, засушливые 2010, 2012 и 2021 годы как отложенный тест. Данные открытые, база уже есть в Alpysbay 2026. Цель — ESSD или NeurIPS D&B.'],
+  [1, 'Проверка geospatial FM в степи', 'ai', 'низкая', 'высокий', 'AlphaEarth, Presto и Prithvi против HistGradientBoosting и TabPFN на том же бенчмарке. Одни данные дают вторую статью. Цель — ISPRS JPRS, RSE или JAG.'],
+  [2, 'Снос при опрыскивании дронами по ISO 22866', 'rob', 'средняя', 'высокий', 'Флуоресцентный трассер, коллекторы до 50 м по ветру, ветер 3–8 м/с, жара, сухой воздух. Первая таблица сноса для сухой степи и основа буферных зон. Нужен партнёр — фитосанитарная служба.'],
+  [3, 'Казахско-русский агро-LLM-бенчмарк', 'ai', 'низкая', 'средний', 'Вопросы с оценкой экспертами-агрономами по образцу AgroBench. Нужны время агрономов и чёткий протокол разметки.'],
+  [4, 'Экономика ретрофит-автономии', 'rob', 'средняя', 'высокий', 'Измерения на 3–5 хозяйствах за 2–3 сезона вместо частичных бюджетов. Таких данных нет ни в одной стране.'],
+  [5, 'Гибрид KGML для яровой пшеницы', 'ai', 'средняя', 'высокий', 'WOFOST или APSIM с ML-коррекцией. Нужен специалист по процессным моделям. Цель — Agric For Meteorol, Field Crops Research.'],
+  [6, 'AI-погода на осадках вегетационного периода', 'ai', 'низкая', 'средний', 'Проверка GraphCast и GenCast на осадках и экстремумах. Осадки — главная переменная богарного земледелия.'],
+  [7, 'Дроны против саранчи: рандомизированные делянки', 'rob', 'средняя', 'средний', 'Делянки крупнее 1 га, сравнение со штатными ULV-обработками, биопестициды против химии.'],
+  [8, 'Навигация и RTK на полях в тысячи гектаров', 'rob', 'средняя', 'средний', 'Точность и доступность RTK, простои из-за пыли и связи, ретрофит существующих тракторов.'],
+  [9, 'Открытые датасеты: пшеница, саранча, засоление', 'rob', 'средняя', 'средний', 'Инфраструктурная работа, которая усиливает все остальные пункты.'],
+  [10, 'MRV углерода в степи', 'ai', 'высокая', 'высокий', 'No-till, залежи, SOC с оценкой неопределённости. Дорого из-за отбора почвенных проб.'],
+  [11, 'Геномная селекция на засухоустойчивость', 'ai', 'высокая', 'высокий', 'GBLUP, DL и ДНК-LM на местных популяциях яровой пшеницы. Реалистично только с CIMMYT.'],
+  [12, 'Доильные роботы в местных условиях', 'rob', 'средняя', 'низкий', 'Здоровье вымени, отказы, сервис при температуре от −40 до +40 °C. В стране всего около 33–37 роботов, выборка мала.']
+];
+$('#agenda').replaceChildren(...AG.map(([rk, t, src, cost, eff, d]) => H(`<div class="aitem ${rk <= 3 ? 'top' : ''}"><div class="rk ${rk <= 3 ? '' : 'dim'}">${rk}</div><div><h3>${esc(t)}</h3><p>${esc(d)}</p></div>
+  <div class="tags">${trk(src)}<span class="lvl">стоимость <b>${cost}</b></span><span class="lvl">эффект <b>${eff}</b></span></div></div>`)));
+const lvChip = s => s === 'нет' ? '<span class="risk">нет</span>' : `<span class="chip ev ev-${s[0]}">${s}</span>`;
+$('#t-gaps').innerHTML = '<tr><th>Тема</th><th>Мир</th><th>РК / ЦА</th><th>Пробел</th></tr>' + [['Снос от дронов', 'B', 'нет', 'Критический: степь, ветер, жара'], ['Дроны против саранчи', 'C', 'C', 'Нет данных об осаждении и экономике'], ['Навигация на больших полях', 'B/A', 'нет', 'Нет данных о точности RTK'], ['Экономика ретрофит-автономии', 'C/D', 'нет', 'Полный'], ['Доильные роботы', 'A', 'нет', 'Климат, породы, сервис'], ['Наземные роботы', 'B/C', 'нет', 'Полный']].map(r => `<tr><td><b>${r[0]}</b></td><td>${lvChip(r[1])}</td><td>${lvChip(r[2])}</td><td>${r[3]}</td></tr>`).join('');
+$('#t-kzlit').innerHTML = '<tr><th>Работа</th><th>Суть</th><th>Уровень</th></tr>' + [
+  ['Alpysbay et al., Agronomy 2026', '10.3390/agronomy16131264', '149 районов, 2000–2024, маска пашни 10 м. SAVI лучше NDVI с июня, SAR не даёт прироста. Временная CV — R² 0,413. Лучшая по методологии работа в регионе.', 'B'],
+  ['Agriculture (MDPI) 2026', '10.3390/agriculture16070782', 'XGBoost на 25-летнем ряду. Ключевые предикторы — зимняя солнечная радиация и свойства почвы.', 'B/C'],
+  ['Land (MDPI) 2026', '10.3390/land15010156', 'Миграция обучающих выборок для карт пашни: OA 86% в Казахстане и 95% в Узбекистане, лучше глобальных продуктов.', 'B/C'],
+  ['Sadenova et al., Agriculture 2023', '10.3390/agriculture13061195', 'Восточный Казахстан: RF и нейросети по спутниковым и метеоданным.', 'C'],
+  ['Azhbenov et al., Organic Farming 2024', '10.56578/of100302', 'Novacrid с дрона: 97,5% гибели личинок саранчи за 17 дней. Малые делянки, снос не измерялся.', 'C'],
+  ['Mukhamediev et al., Drones 2025', '10.3390/drones9120865', 'БПЛА и ML для карт засоления полей Южного Казахстана.', 'C'],
+  ['J. Intelligent & Robotic Systems 2026', '10.1007/s10846-026-02394-w', 'В Казахстане нет лабораторий, аккредитованных по ISO/IEC 17025 для сертификации БПЛА.', '—'],
+  ['arXiv 2306.04646', '', 'Прогноз урожая по областям на данных GEOGLAM: пространственная поправка снизила RMSE на 8,9%.', 'D']
+].map(r => `<tr><td style="min-width:200px"><b>${r[1] ? `<a href="https://doi.org/${r[1]}" target="_blank" rel="noopener">${r[0]}</a>` : `<a href="https://arxiv.org/abs/2306.04646" target="_blank" rel="noopener">${r[0]}</a>`}</b></td><td style="min-width:280px">${r[2]}</td><td>${r[3] === '—' ? '—' : `<span class="chip ev ev-${r[3][0]}">${r[3]}</span>`}</td></tr>`).join('');
+
+/* ---------- checks ---------- */
+const nV = PAPERS.filter(p => p.v).length, nA = PAPERS.filter(p => p.anon).length, nNo = PAPERS.filter(p => !p.url).length, nPre = PAPERS.filter(p => p.st === 'Препринт').length;
+$('#chk-tiles').innerHTML = [[nV, 'записей с пометкой «сверить»', 'DOI или название из вторичных источников'], [nA, 'записей без имён авторов', '«Авторы arXiv», «Survey authors» и т. п.'], [nNo, 'записей без ссылки', 'нет DOI, arXiv или PubMed'], [nPre, 'препринтов', 'не прошли рецензирование']].map(([n, a, b]) => `<div class="tile"><b>${n}</b><span>${a}</span><small>${b}</small></div>`).join('');
+const SEV = {e: ['Ошибка', 'var(--crit)'], i: ['Нестыковка', 'var(--warn)'], m: ['Методология', 'var(--s1)']};
+const ISS = [
+  ['e', 'Годы эмбеддингов AlphaEarth', 'В полном отчёте по AI/ML сказано «доступны только с 2021 года», в приложении — «с 2017 г.». Насколько известно, датасет в Google Earth Engine начинается с 2017 года. Тогда аргумент о коротком ряде для временного переноса надо смягчить.', 'AI/ML: часть III, раздел 4 и приложение, 2025 год, №7'],
+  ['e', 'Сумма доильных роботов в Казахстане', 'Итог в отчёте — «около 37–41». По перечисленным фермам: 9 + (8–12) + 6 + 10 = 33–37.', 'Робототехника: часть I, блок по Казахстану'],
+  ['i', 'Экономия See & Spray: 59% или около 50%', 'Отчёт по AI/ML даёт 59% и >1 млн акров, отчёт по робототехнике — «почти 50% по данным Deere» и 43–59% у Университета Арканзаса. Обе цифры Deere, скорее всего, верные, но за разные годы (2024 и 2025). Год нужно явно указать в обоих отчётах.', 'Оба отчёта, часть I'],
+  ['i', '66% успешности и 33 с на плод', 'Цифры приписаны обзору Kootstra 2021 и ещё раз даны как «среднее для теплиц». Это ровно результат Bac et al. 2014, на который ссылается отчёт по AI/ML. Вероятно, цифра пришла через вторичный источник. Сверьте с Kootstra.', 'Робототехника: часть II, карта направлений и раздел о сборщиках'],
+  ['i', 'Слово «пик» в библиометрике', 'Хронология называет пиком «>850 работ в 2021», рядом стоят «~1200 в Scopus за 2024» и «пик 3 357 в 2020» (Figorilli). Это разные поисковые выборки, их нельзя ставить в один ряд.', 'Робототехника: хронология научных трендов, библиометрика'],
+  ['i', 'Butler-Ellis 2025: DOI и уровень', 'В отчёте указан PMC13352205, в приложении — 10.1002/ps.8645. Направлению «снос от дронов» присвоен уровень B, самой работе — C.', 'Робототехника: ключевые работы, №22 и приложение, 2025 год'],
+  ['m', 'Шкала A–D определена по-разному', 'В отчёте по AI/ML уровень A включает «операционное использование», в отчёте по робототехнике — только «многолетнюю независимую полевую валидацию». Для единого исследования нужна одна шкала.', 'Оба отчёта, раздел «Методика»'],
+  ['m', 'Нет русско- и казахоязычной литературы', 'eLibrary, КазНУ, ФНАЦ ВИМ и КазНИИЗиКР не просматривались. Поэтому вывод «научная база Казахстана почти пуста» доказан только для англоязычных журналов. Рецензент заметит это первым. Нужен хотя бы беглый поиск по eLibrary и CyberLeninka.', 'Оба приложения, раздел «Ограничения»'],
+  ['m', 'Нет поискового протокола', 'Отбор экспертный, без поисковых строк и критериев включения. Для внутреннего документа этого достаточно. Для публикации нужен хотя бы упрощённый PRISMA: базы, запросы, критерии и схема отбора.', 'Оба отчёта, раздел «Методика»'],
+  ['m', 'Пересечения между частями', 'Части II и III отчёта по AI/ML во многом дублируют друг друга. Робототехника разобрана и в отчёте по AI/ML, и отдельно. Можно оставить одну научную часть и ссылаться на отчёт по роботам.', 'AI/ML: части II–III']
+];
+$('#issues').innerHTML = ISS.map(([s, t, d, w]) => `<div class="issue"><div><span class="sev"><i style="background:${SEV[s][1]}"></i>${SEV[s][0]}</span></div><div><h3>${t}</h3><p>${d}</p><div class="where">${w}</div></div></div>`).join('');
+
+show(location.hash.slice(1) || 'overview');
+</script>
+</body>
+</html>
